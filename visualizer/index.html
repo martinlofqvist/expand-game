@@ -591,12 +591,12 @@ function renderProgression() {
         <div class="lvl">LVL<br>${lvl++}</div>
         <div class="ticker-pill${s.name==='TBD'?' tbd':''}">${ed(`subsidiaries.${si}.ticker`,s.ticker,'ticker-edit','TICK')}</div>
         <div class="prog-name-col"><strong>${ed(`subsidiaries.${si}.name`,s.name,'name-edit','Name…')}</strong><span>${CAT[s.category]||'TBD'}</span></div>
-        <div class="prog-thresh">${numEd(`subsidiaries.${si}.unlockThreshold`,s.unlockThreshold,'threshold')}</div>
+        <div class="prog-thresh${s.unlockThreshold===0?' starts':''}">${fmtN(s.unlockThreshold)}</div>
         <div class="pip-row">${pips(s)}</div></div>`;
     } else {
       const fk=fkById[e.id],A=fg[e.id]?.A,B=fg[e.id]?.B;
       const fi=fk._idx;
-      rows+=`<div class="conn"></div><div class="fork-block"><div class="fork-spine"><div class="fork-label">${ed(`forks.${fi}.label`,fk.label,'name-edit','Fork label')}<br>${numEd(`forks.${fi}.threshold`,fk.threshold,'threshold')}</div></div><div class="fork-options">${fOpt(A,lvl++,byIdx)}<div class="fork-or">OR</div>${fOpt(B,lvl++,byIdx)}</div></div><div class="conn"></div>`;
+      rows+=`<div class="conn"></div><div class="fork-block"><div class="fork-spine"><div class="fork-label">${ed(`forks.${fi}.label`,fk.label,'name-edit','Fork label')}<br>${fmtN(fk.threshold)}</div></div><div class="fork-options">${fOpt(A,lvl++,byIdx)}<div class="fork-or">OR</div>${fOpt(B,lvl++,byIdx)}</div></div><div class="conn"></div>`;
     }
   });
   document.getElementById('tab-progression').innerHTML=`<div class="sec-title">Progression Path</div><div class="sec-sub">${D.subsidiaries.length} subsidiaries · ${D.forks.length} forks · click any name or number to edit · pips = T1/T2/T3 naming progress</div><div class="prog-list">${rows}</div>`;
