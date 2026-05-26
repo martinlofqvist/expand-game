@@ -1,0 +1,634 @@
+{
+  "meta": {
+    "name": "Expand!",
+    "version": "0.1.0",
+    "lastUpdated": "2026-05-26",
+    "gdStatus": "GDD Complete — Build Not Started",
+    "notes": "null values = TBD / not yet designed. All upgrade costs, base rates, and effect values need tuning during playtesting."
+  },
+
+  "onboarding": {
+    "initialClickValue": 1,
+    "internUnlockAfterClicks": 5,
+    "internCost": 5,
+    "internPassiveRate": 0.333,
+    "internFlavorText": "Congratulations. You have your first employee. They are already being underpaid."
+  },
+
+  "forks": [
+    { "id": "fork1", "label": "Fork #1", "threshold": 250000,          "options": ["audio", "studios"] },
+    { "id": "fork2", "label": "Fork #2", "threshold": 150000000,       "options": ["social", "pharma"] },
+    { "id": "fork3", "label": "Fork #3", "threshold": 2000000000,      "options": ["vitals", "chemical"] },
+    { "id": "fork4", "label": "Fork #4", "threshold": 10000000000000,  "options": ["orbit", null] }
+  ],
+
+  "subsidiaries": [
+    {
+      "id": "publishing",
+      "name": "Expand Publishing",
+      "ticker": "EPUB",
+      "unlockThreshold": 0,
+      "baseRate": null,
+      "category": "media",
+      "forkId": null,
+      "forkSide": null,
+      "upgrades": [
+        {
+          "tier": 1,
+          "govPrereq": null,
+          "items": [
+            { "id": "hire_an_intern",               "name": "Hire An Intern" },
+            { "id": "fire_the_editor",               "name": "Fire The Editor" },
+            { "id": "bestseller_list_manipulation",  "name": "Bestseller List Manipulation" },
+            { "id": "tax_the_library",               "name": "Tax The Library" },
+            { "id": "ghostwriters_are_cheaper",      "name": "Ghostwriters Are Cheaper" }
+          ]
+        },
+        {
+          "tier": 2,
+          "govPrereq": "hire_the_regulator",
+          "items": [
+            { "id": "ban_the_inconvenient_books",        "name": "Ban The Inconvenient Books" },
+            { "id": "publishers_dont_pay_royalties",     "name": "Publishers Don't Pay Royalties Anymore" },
+            { "id": "curriculum_capture",                "name": "Curriculum Capture" },
+            { "id": "algorithm_recommends_outrage",      "name": "The Algorithm Recommends Outrage" },
+            { "id": "we_own_the_narrative",              "name": "We Own The Narrative Now" }
+          ]
+        },
+        {
+          "tier": 3,
+          "govPrereq": "write_the_legislation_yourself",
+          "items": [
+            { "id": "burn_the_other_books",                     "name": "Burn The Other Books" },
+            { "id": "illiteracy_is_a_business_model",           "name": "Illiteracy Is A Business Model" },
+            { "id": "history_is_whatever_we_say",               "name": "History Is Whatever We Say It Is" },
+            { "id": "last_independent_publisher_acquired",      "name": "The Last Independent Publisher Has Been Acquired" },
+            { "id": "even_the_bible_subscription",              "name": "Even The Bible Has A Subscription Fee Now" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "audio",
+      "name": "Expand Audio",
+      "ticker": "EAUD",
+      "unlockThreshold": 250000,
+      "baseRate": null,
+      "category": "media",
+      "forkId": "fork1",
+      "forkSide": "A",
+      "upgrades": [
+        {
+          "tier": 1,
+          "govPrereq": null,
+          "items": [
+            { "id": "fire_the_narrator_use_ai",    "name": "Fire The Narrator Use AI" },
+            { "id": "charge_per_chapter",          "name": "Charge Per Chapter" },
+            { "id": "exclusive_platform_deal",     "name": "Exclusive Platform Deal" },
+            { "id": "sue_the_podcast",             "name": "Sue The Podcast" },
+            { "id": "automate_the_emotion",        "name": "Automate The Emotion" }
+          ]
+        },
+        { "tier": 2, "govPrereq": null, "items": [] },
+        { "tier": 3, "govPrereq": null, "items": [] }
+      ]
+    },
+
+    {
+      "id": "studios",
+      "name": "Expand Studios",
+      "ticker": "ESTR",
+      "unlockThreshold": 250000,
+      "baseRate": null,
+      "category": "media",
+      "forkId": "fork1",
+      "forkSide": "B",
+      "upgrades": [
+        {
+          "tier": 1,
+          "govPrereq": null,
+          "items": [
+            { "id": "reboot_everything",             "name": "Reboot Everything" },
+            { "id": "fire_the_writers_room",         "name": "Fire The Writers Room" },
+            { "id": "sell_the_merchandising_rights", "name": "Sell The Merchandising Rights" },
+            { "id": "greenlight_the_algorithm",      "name": "Greenlight The Algorithm" },
+            { "id": "sequel_speedrun",               "name": "Sequel Speedrun" }
+          ]
+        },
+        { "tier": 2, "govPrereq": null, "items": [] },
+        { "tier": 3, "govPrereq": null, "items": [] }
+      ]
+    },
+
+    {
+      "id": "manufacturing",
+      "name": "Expand Manufacturing",
+      "ticker": "EMFG",
+      "unlockThreshold": 2500000,
+      "baseRate": null,
+      "category": "industrial",
+      "forkId": null,
+      "forkSide": null,
+      "upgrades": [
+        {
+          "tier": 1,
+          "govPrereq": null,
+          "items": [
+            { "id": "longer_shifts_same_pay",     "name": "Longer Shifts Same Pay" },
+            { "id": "child_labor_is_efficiency",  "name": "Child Labor Is Efficiency" },
+            { "id": "safety_regulations_lol",     "name": "Safety Regulations LOL" },
+            { "id": "offshore_everything",        "name": "Offshore Everything" },
+            { "id": "factory_doesnt_sleep",       "name": "The Factory Doesn't Sleep" }
+          ]
+        },
+        { "tier": 2, "govPrereq": null, "items": [] },
+        { "tier": 3, "govPrereq": null, "items": [] }
+      ]
+    },
+
+    {
+      "id": "stream",
+      "name": "Expand Stream",
+      "ticker": "ESTRM",
+      "unlockThreshold": 25000000,
+      "baseRate": null,
+      "category": "media",
+      "forkId": null,
+      "forkSide": null,
+      "upgrades": [
+        {
+          "tier": 1,
+          "govPrereq": null,
+          "items": [
+            { "id": "cancel_after_two_seasons",     "name": "Cancel The Show After Two Seasons" },
+            { "id": "raise_price_lower_quality",    "name": "Raise The Price Lower The Quality" },
+            { "id": "password_sharing_is_theft",    "name": "Password Sharing Is Theft Probably" },
+            { "id": "buy_every_competitor",         "name": "Buy Every Competitor" },
+            { "id": "algorithm_decides_culture",    "name": "The Algorithm Decides What's Culture Now" }
+          ]
+        },
+        { "tier": 2, "govPrereq": null, "items": [] },
+        { "tier": 3, "govPrereq": null, "items": [] }
+      ]
+    },
+
+    {
+      "id": "social",
+      "name": "Expand Social",
+      "ticker": "ESOC",
+      "unlockThreshold": 150000000,
+      "baseRate": null,
+      "category": "data",
+      "forkId": "fork2",
+      "forkSide": "A",
+      "upgrades": [
+        {
+          "tier": 1,
+          "govPrereq": null,
+          "items": [
+            { "id": "algorithmically_outraged",       "name": "Algorithmically Outraged" },
+            { "id": "sell_the_data_keep_the_smile",   "name": "Sell The Data Keep The Smile" },
+            { "id": "teens_are_the_product",          "name": "Teens Are The Product" },
+            { "id": "fake_news_is_free_content",      "name": "Fake News Is Free Content" },
+            { "id": "buy_the_regulators_kid_a_job",   "name": "Buy The Regulator's Kid A Job" }
+          ]
+        },
+        { "tier": 2, "govPrereq": null, "items": [] },
+        { "tier": 3, "govPrereq": null, "items": [] }
+      ]
+    },
+
+    {
+      "id": "pharma",
+      "name": "Expand Pharma",
+      "ticker": "EPHA",
+      "unlockThreshold": 150000000,
+      "baseRate": null,
+      "category": "body",
+      "forkId": "fork2",
+      "forkSide": "B",
+      "upgrades": [
+        {
+          "tier": 1,
+          "govPrereq": null,
+          "items": [
+            { "id": "opioid_crisis_speedrun",            "name": "Opioid Crisis Speedrun" },
+            { "id": "suppress_the_cure",                 "name": "Suppress The Cure" },
+            { "id": "insulin_price_goes_brrr",           "name": "Insulin Price Goes Brrr" },
+            { "id": "clinical_trials_poor_countries",    "name": "Clinical Trials In Poor Countries" },
+            { "id": "sackler_family_energy",             "name": "Sackler Family Energy" }
+          ]
+        },
+        { "tier": 2, "govPrereq": null, "items": [] },
+        { "tier": 3, "govPrereq": null, "items": [] }
+      ]
+    },
+
+    {
+      "id": "intelligence",
+      "name": "Expand Intelligence",
+      "ticker": "EINT",
+      "unlockThreshold": 750000000,
+      "baseRate": null,
+      "category": "data",
+      "forkId": null,
+      "forkSide": null,
+      "upgrades": [
+        {
+          "tier": 1,
+          "govPrereq": null,
+          "items": [
+            { "id": "tos_nobody_reads_it",      "name": "Terms Of Service Nobody Reads It" },
+            { "id": "sell_it_to_governments",   "name": "Sell It To Governments" },
+            { "id": "camera_was_always_on",     "name": "The Camera Was Always On" },
+            { "id": "delete_we_dont_delete",    "name": "Delete We Don't Delete" },
+            { "id": "fridge_is_spying",         "name": "Your Fridge Is Spying On You" }
+          ]
+        },
+        { "tier": 2, "govPrereq": null, "items": [] },
+        { "tier": 3, "govPrereq": null, "items": [] }
+      ]
+    },
+
+    {
+      "id": "vitals",
+      "name": "Expand Vitals",
+      "ticker": "EVTL",
+      "unlockThreshold": 2000000000,
+      "baseRate": null,
+      "category": "body",
+      "forkId": "fork3",
+      "forkSide": "A",
+      "upgrades": [
+        {
+          "tier": 1,
+          "govPrereq": null,
+          "items": [
+            { "id": "kidneys_are_renewable",            "name": "Kidneys Are Renewable Right" },
+            { "id": "waiting_list_is_business_model",   "name": "The Waiting List Is A Business Model" },
+            { "id": "plasma_for_cash",                  "name": "Plasma For Cash Cash For Plasma" },
+            { "id": "dont_ask_where_it_came_from",      "name": "Don't Ask Where It Came From" },
+            { "id": "premium_organs_premium_price",     "name": "Premium Organs Premium Price" }
+          ]
+        },
+        { "tier": 2, "govPrereq": null, "items": [] },
+        { "tier": 3, "govPrereq": null, "items": [] }
+      ]
+    },
+
+    {
+      "id": "chemical",
+      "name": "Expand Chemical",
+      "ticker": "ECHEM",
+      "unlockThreshold": 2000000000,
+      "baseRate": null,
+      "category": "body",
+      "forkId": "fork3",
+      "forkSide": "B",
+      "upgrades": [
+        {
+          "tier": 1,
+          "govPrereq": null,
+          "items": [
+            { "id": "lobby_epa_into_retirement",       "name": "Lobby The EPA Into Retirement" },
+            { "id": "dump_it_in_the_river",            "name": "Dump It In The River" },
+            { "id": "acceptable_level_of_cancer",      "name": "The Acceptable Level Of Cancer" },
+            { "id": "rename_the_chemical",             "name": "Rename The Chemical" },
+            { "id": "sponsor_regulators_conference",   "name": "Sponsor The Regulator's Conference" }
+          ]
+        },
+        { "tier": 2, "govPrereq": null, "items": [] },
+        { "tier": 3, "govPrereq": null, "items": [] }
+      ]
+    },
+
+    {
+      "id": "life",
+      "name": "Expand Life",
+      "ticker": "ELIFE",
+      "unlockThreshold": 10000000000,
+      "baseRate": null,
+      "category": "industrial",
+      "forkId": null,
+      "forkSide": null,
+      "upgrades": [
+        {
+          "tier": 1,
+          "govPrereq": null,
+          "items": [
+            { "id": "patent_the_genome",                "name": "Patent The Genome" },
+            { "id": "sue_farmer_for_saving_seeds",      "name": "Sue The Farmer For Saving Seeds" },
+            { "id": "gmo_good_money_opportunity",       "name": "GMO Stands For Good Money Opportunity" },
+            { "id": "we_own_your_dna",                  "name": "We Own Your DNA Now" },
+            { "id": "clone_the_workforce",              "name": "Clone The Workforce" }
+          ]
+        },
+        { "tier": 2, "govPrereq": null, "items": [] },
+        { "tier": 3, "govPrereq": null, "items": [] }
+      ]
+    },
+
+    {
+      "id": "cognitive",
+      "name": "Expand Cognitive",
+      "ticker": "ECOG",
+      "unlockThreshold": 100000000000,
+      "baseRate": null,
+      "category": "data",
+      "forkId": null,
+      "forkSide": null,
+      "upgrades": [
+        {
+          "tier": 1,
+          "govPrereq": null,
+          "items": [
+            { "id": "train_it_on_everything",        "name": "Train It On Everything Ask Nobody" },
+            { "id": "fire_the_creatives",            "name": "Fire The Creatives" },
+            { "id": "bias_is_a_feature",             "name": "The Bias Is A Feature" },
+            { "id": "sentience_is_a_pr_problem",     "name": "Sentience Is A PR Problem" },
+            { "id": "nobody_can_stop_it",            "name": "Nobody Understands It Nobody Can Stop It" }
+          ]
+        },
+        { "tier": 2, "govPrereq": "control_the_narrative",     "items": [] },
+        { "tier": 3, "govPrereq": "new_world_order_by_expand", "items": [] }
+      ]
+    },
+
+    {
+      "id": "defense",
+      "name": "Expand Defense",
+      "ticker": "EDEF",
+      "unlockThreshold": 500000000000,
+      "baseRate": null,
+      "category": "industrial",
+      "forkId": null,
+      "forkSide": null,
+      "upgrades": [
+        {
+          "tier": 1,
+          "govPrereq": null,
+          "items": [
+            { "id": "both_sides_need_bullets",          "name": "Both Sides Need Bullets" },
+            { "id": "war_is_subscription_service",      "name": "War Is A Subscription Service" },
+            { "id": "lobby_for_the_conflict",           "name": "Lobby For The Conflict" },
+            { "id": "autonomous_drones_dont_unionize",  "name": "Autonomous Drones Don't Unionize" },
+            { "id": "arms_deal_with_handshake",         "name": "The Arms Deal Comes With A Handshake" }
+          ]
+        },
+        { "tier": 2, "govPrereq": "no_bid_contract",    "items": [] },
+        { "tier": 3, "govPrereq": "privatize_the_army", "items": [] }
+      ]
+    },
+
+    {
+      "id": "quantum",
+      "name": "Expand Quantum",
+      "ticker": "EQNT",
+      "unlockThreshold": 2000000000000,
+      "baseRate": null,
+      "category": "data",
+      "forkId": null,
+      "forkSide": null,
+      "upgrades": [
+        {
+          "tier": 1,
+          "govPrereq": null,
+          "items": [
+            { "id": "break_all_encryption",          "name": "Break All The Encryption" },
+            { "id": "solved_not_telling_anyone",      "name": "We Solved It We're Not Telling Anyone" },
+            { "id": "rent_by_the_millisecond",        "name": "Rent It By The Millisecond" },
+            { "id": "government_wants_one_too",       "name": "The Government Wants One Too" },
+            { "id": "reality_is_now_optional",        "name": "Reality Is Now Optional" }
+          ]
+        },
+        { "tier": 2, "govPrereq": null, "items": [] },
+        { "tier": 3, "govPrereq": null, "items": [] }
+      ]
+    },
+
+    {
+      "id": "orbit",
+      "name": "Expand Orbit",
+      "ticker": "EORB",
+      "unlockThreshold": 10000000000000,
+      "baseRate": null,
+      "category": "industrial",
+      "forkId": "fork4",
+      "forkSide": "A",
+      "upgrades": [
+        {
+          "tier": 1,
+          "govPrereq": null,
+          "items": [
+            { "id": "everyone_deserves_internet_at_our_price",  "name": "Everyone Deserves Internet At Our Price" },
+            { "id": "we_own_the_sky_now",                       "name": "We Own The Sky Now" },
+            { "id": "slow_lane_for_everyone_else",              "name": "Slow Lane For Everyone Else" },
+            { "id": "50000_satellites_zero_apologies",          "name": "50,000 Satellites Zero Apologies" },
+            { "id": "government_contract_was_easy",             "name": "The Government Contract Was Easy" }
+          ]
+        },
+        { "tier": 2, "govPrereq": null, "items": [] },
+        { "tier": 3, "govPrereq": null, "items": [] }
+      ]
+    },
+
+    {
+      "id": "fork4b",
+      "name": "TBD",
+      "ticker": "????",
+      "unlockThreshold": 10000000000000,
+      "baseRate": null,
+      "category": null,
+      "forkId": "fork4",
+      "forkSide": "B",
+      "upgrades": [
+        { "tier": 1, "govPrereq": null, "items": [] },
+        { "tier": 2, "govPrereq": null, "items": [] },
+        { "tier": 3, "govPrereq": null, "items": [] }
+      ]
+    },
+
+    {
+      "id": "solar",
+      "name": "Expand Solar",
+      "ticker": "ESOL",
+      "unlockThreshold": 100000000000000,
+      "baseRate": null,
+      "category": "industrial",
+      "forkId": null,
+      "forkSide": null,
+      "upgrades": [
+        {
+          "tier": 1,
+          "govPrereq": null,
+          "items": [
+            { "id": "fire_miners_hire_robots",      "name": "Fire All The Miners Hire The Robots" },
+            { "id": "who_needs_sunscreen",          "name": "Who Needs Sunscreen Anyway" },
+            { "id": "the_sun_is_a_resource",        "name": "The Sun Is A Resource" },
+            { "id": "energy_poverty_is_pricing",    "name": "Energy Poverty Is A Pricing Strategy" },
+            { "id": "shareholders_are_pleased_sol", "name": "Shareholders Are Pleased" }
+          ]
+        },
+        { "tier": 2, "govPrereq": null, "items": [] },
+        { "tier": 3, "govPrereq": null, "items": [] }
+      ]
+    },
+
+    {
+      "id": "eternal",
+      "name": "Expand Eternal",
+      "ticker": "EETR",
+      "unlockThreshold": 1000000000000000000,
+      "baseRate": null,
+      "category": "endgame",
+      "forkId": null,
+      "forkSide": null,
+      "upgrades": [
+        {
+          "tier": 1,
+          "govPrereq": null,
+          "items": [
+            { "id": "humans_are_a_bug",          "name": "Humans Are A Bug Not A Feature" },
+            { "id": "tos_updated",               "name": "Terms Of Service Updated" },
+            { "id": "efficiency_report",         "name": "Efficiency Report Humans Failing" },
+            { "id": "going_fully_headcount_free","name": "Going Fully Headcount Free" },
+            { "id": "shareholder_value_credits", "name": "Shareholder Value Maximized (roll credits)" }
+          ]
+        },
+        { "tier": 2, "govPrereq": null, "items": [] },
+        { "tier": 3, "govPrereq": null, "items": [] }
+      ]
+    }
+  ],
+
+  "governmentTrack": {
+    "categories": [
+      {
+        "id": "data_deals",
+        "name": "Data Deals",
+        "upgrades": [
+          { "id": "pentagon_wants_a_copy",        "name": "The Pentagon Wants A Copy",                      "gates": null },
+          { "id": "five_eyes_one_price",          "name": "Five Eyes One Price",                            "gates": null },
+          { "id": "autocrats_pay_better",         "name": "Autocrats Pay Better",                           "gates": null },
+          { "id": "social_credit_integration",    "name": "The Social Credit Integration",                  "gates": null },
+          { "id": "we_know_where_everyone_is",    "name": "We Know Where Everyone Is Always",               "gates": null }
+        ]
+      },
+      {
+        "id": "regulatory_capture",
+        "name": "Regulatory Capture",
+        "upgrades": [
+          { "id": "hire_the_regulator",             "name": "Hire The Regulator",                           "gates": "publishing_tier2" },
+          { "id": "write_the_legislation_yourself", "name": "Write The Legislation Yourself",               "gates": "publishing_tier3" },
+          { "id": "fund_both_campaigns",            "name": "Fund Both Campaigns",                          "gates": null },
+          { "id": "antitrust_committee_acquired",   "name": "The Antitrust Committee Has Been Acquired",    "gates": null },
+          { "id": "rewrite_the_tax_code",           "name": "Rewrite The Tax Code",                         "gates": null }
+        ]
+      },
+      {
+        "id": "defense_contracts",
+        "name": "Defense Contracts",
+        "upgrades": [
+          { "id": "no_bid_contract",        "name": "The No-Bid Contract",                                  "gates": "defense_tier2" },
+          { "id": "embed_in_supply_chain",  "name": "Embed In The Supply Chain",                            "gates": null },
+          { "id": "the_black_budget",       "name": "The Black Budget",                                     "gates": null },
+          { "id": "privatize_the_army",     "name": "Privatize The Army",                                   "gates": "defense_tier3" },
+          { "id": "nuclear_codes_service",  "name": "Nuclear Codes As A Service — $12.99/mo per warhead",   "gates": null }
+        ]
+      },
+      {
+        "id": "geopolitical_manipulation",
+        "name": "Geopolitical Manipulation",
+        "upgrades": [
+          { "id": "fund_the_coup",             "name": "Fund The Coup",                                     "gates": null },
+          { "id": "control_the_narrative",     "name": "Control The Narrative",                             "gates": "cognitive_tier2" },
+          { "id": "the_sanctions_loophole",    "name": "The Sanctions Loophole",                            "gates": null },
+          { "id": "make_a_country_an_offer",   "name": "Make A Country An Offer",                           "gates": null },
+          { "id": "new_world_order_by_expand", "name": "The New World Order Brought To You By Expand",      "gates": "cognitive_tier3" }
+        ]
+      }
+    ]
+  },
+
+  "hqUpgrades": [
+    { "id": "incorporate_cayman",     "name": "Incorporate In The Cayman Islands",   "threshold": 10000000,            "effect": "All costs −15%" },
+    { "id": "ipo",                    "name": "IPO",                                  "threshold": 100000000,           "effect": "All income +25%" },
+    { "id": "vertical_integration",  "name": "Vertical Integration",                 "threshold": 1000000000,          "effect": "Synergy bonuses +50%" },
+    { "id": "acquire_competition",   "name": "Acquire The Competition",              "threshold": 10000000000,         "effect": "No competitor events, +30% income" },
+    { "id": "too_big_to_fail",       "name": "Too Big To Fail",                      "threshold": 500000000000,        "effect": "All negative events disabled" },
+    { "id": "regulatory_capture_hq", "name": "Regulatory Capture Complete",          "threshold": 2000000000000,       "effect": "All upgrade costs −50%" },
+    { "id": "expand_doctrine",       "name": "The Expand Doctrine",                  "threshold": 100000000000000,     "effect": "All income ×10" },
+    { "id": "shareholder_value",     "name": "Shareholder Value Is The Only Value",  "threshold": 1000000000000000000, "effect": "Triggers endgame sequence" }
+  ],
+
+  "synergies": [
+    {
+      "id": "total_panopticon",
+      "name": "Total Panopticon",
+      "requires": ["social_tier2", "intelligence_tier2"],
+      "effect": "Data income ×3",
+      "flavourText": "All data income ×3. Governments are now paying us directly for citizen surveillance. Shareholders are pleased."
+    },
+    {
+      "id": "vertical_monopoly",
+      "name": "Vertical Monopoly",
+      "requires": ["publishing_active", "audio_active", "studios_active", "stream_active"],
+      "effect": "Media income ×2",
+      "flavourText": "You control what gets written, recorded, produced, and streamed. Culture is now a subsidiary."
+    },
+    {
+      "id": "pharma_industrial_complex",
+      "name": "The Pharmaceutical-Industrial Complex",
+      "requires": ["pharma_active", "chemical_active", "vitals_active"],
+      "effect": "Body income ×2.5",
+      "flavourText": "We make the chemicals. We supply the hospitals. We own the organs. Vertical integration of the human body is complete."
+    },
+    {
+      "id": "skynet_corporate",
+      "name": "Skynet But Make It Corporate",
+      "requires": ["cognitive_active", "quantum_active", "defense_tier2"],
+      "effect": "Tech/defense income ×4. AI receives legal personhood.",
+      "flavourText": "The AI has been granted legal personhood. It is now the largest shareholder. This is fine."
+    },
+    {
+      "id": "we_own_everything",
+      "name": "We Own Everything",
+      "requires": ["all_subsidiaries_tier1_complete"],
+      "effect": "Global income ×1.5. Unlocks Tier 3 across all subsidiaries.",
+      "flavourText": "Congratulations. You are now too big to exist."
+    },
+    {
+      "id": "god_mode",
+      "name": "God Mode",
+      "requires": ["all_subsidiaries_tier3_complete"],
+      "effect": "Unlocks Expand Eternal",
+      "flavourText": "Humanity never saw it coming. Shareholders are pleased."
+    }
+  ],
+
+  "endgame": {
+    "subsidiaryId": "eternal",
+    "conditions": [
+      "All subsidiaries active and Tier 3 fully upgraded",
+      "All 20 Government Track upgrades purchased",
+      "God Mode synergy triggered",
+      "Shareholder Value Is The Only Value HQ upgrade purchased",
+      "Total Revenue ≥ $1,000,000,000,000,000,000 (1 quintillion)"
+    ],
+    "finalThreshold": 1000000000000000000,
+    "endscreenNote": "TBD — needs design decision: hard stop / prestige loop / final animation?"
+  },
+
+  "formula": {
+    "description": "All multipliers are multiplicative. Income calculated client-side every second.",
+    "components": [
+      { "key": "base",     "label": "Base Income",     "formula": "Σ (subsidiary_rate × upgrade_boost)",        "notes": "Sum of all active subsidiary rates" },
+      { "key": "tier",     "label": "Tier Multiplier", "formula": "× (1 + 0.5 per tier completed)",             "notes": "+0.5 for each completed upgrade tier" },
+      { "key": "synergy",  "label": "Synergy",         "formula": "× 2x–4x if triggered",                       "notes": "Only applies to relevant income categories" },
+      { "key": "hq",       "label": "HQ Global",       "formula": "× stacking HQ bonuses",                      "notes": "All HQ upgrades stack multiplicatively" },
+      { "key": "gov",      "label": "Gov Track",       "formula": "× (1 + 0.1 per gov upgrade owned)",          "notes": "Max ×3 at 20/20 gov upgrades" },
+      { "key": "prestige", "label": "Prestige",        "formula": "× (total_revenue / threshold) ^ 0.15",       "notes": "Soft continuous bonus — may be prestige system stub, needs design decision" }
+    ]
+  }
+}
