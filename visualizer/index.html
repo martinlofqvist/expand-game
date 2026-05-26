@@ -491,6 +491,18 @@ function fmtN(n) {
   return '$'+n;
 }
 
+function fmtNPlain(n) {
+  if(n===null||n===undefined) return '';
+  if(n===0) return 'Starts unlocked';
+  if(n>=1e18) return '$1 quintillion';
+  if(n>=1e15) return '$'+(n/1e15).toFixed(0)+'Q';
+  if(n>=1e12) return '$'+(n/1e12).toFixed(0)+'T';
+  if(n>=1e9)  return '$'+(n/1e9).toFixed(0)+'B';
+  if(n>=1e6)  return '$'+(n/1e6).toFixed(1)+'M';
+  if(n>=1e3)  return '$'+(n/1e3).toFixed(0)+'K';
+  return '$'+n;
+}
+
 function pips(sub) {
   return sub.tiers.map(t => {
     const filled = t.slots.filter(s=>s.trim()).length;
@@ -533,8 +545,16 @@ window.onEdit = function(el) {
 window.onNumEdit = function(el) {
   const path = el.dataset.path; if(!path) return;
   const raw = el.value.trim();
-  setPath(D, path, raw==='' ? null : (isNaN(+raw) ? raw : +raw));
+  const num = raw==='' ? null : (isNaN(+raw) ? raw : +raw);
+  setPath(D, path, num);
   markDirty();
+  el.dataset.raw = num !== null && num !== undefined ? num : '';
+  el.value = fmtNPlain(num);
+};
+
+window.onNumFocus = function(el) {
+  el.value = el.dataset.raw;
+  el.select();
 };
 
 window.editKey = function(e, el) {
@@ -547,9 +567,11 @@ function ed(path, val, cls='', ph='Click to edit…', multi=false) {
   return `<span class="editable ${cls} ${empty}" contenteditable="true" data-path="${path}" data-ph="${ph}" ${multi?'data-multi="1"':''} oninput="window.onEdit(this)" onkeydown="window.editKey(event,this)">${esc(val)}</span>`;
 }
 
-// Editable number helper
+// Editable number helper — displays formatted, edits raw on focus
 function numEd(path, val, ph='TBD') {
-  return `<input class="num-field" type="text" data-path="${path}" value="${val!==null&&val!==undefined?val:''}" placeholder="${ph}" onblur="window.onNumEdit(this)" onkeydown="if(event.key==='Enter')this.blur()" />`;
+  const raw     = val !== null && val !== undefined ? val : '';
+  const display = fmtNPlain(val);
+  return `<input class="num-field" type="text" data-path="${path}" data-raw="${raw}" value="${display}" placeholder="${ph}" onfocus="window.onNumFocus(this)" onblur="window.onNumEdit(this)" onkeydown="if(event.key==='Enter')this.blur()" />`;
 }
 
 // ── Tabs ──────────────────────────────────────────────────────────
