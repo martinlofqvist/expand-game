@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EXPAND! — Game Design Visualizer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=PT+Mono&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Switch.css by bomberfish ── */
+    @import url('https://fonts.googleapis.com/css2?family=PT+Mono&display=swap');
+    html, html.light {
+      --bg: #ebebeb; --bg2: #fdfdfd; --fg: #2e2e2e;
+      --mg: #c9c9c9; --accent: #3050F1; --highlight: #1ca8cb;
+      --highlight2: #1CBCCB;
+    }
+    html.dark {
+      --bg: #1a1a1f; --bg2: #212227; --fg: #fff;
+      --mg: #3a3a3f; --accent: #01FFCB; --highlight: #6BD3E8;
+      --highlight2: #6be8d5;
+    }
+    html { background-color: var(--bg); }
+    body { color: var(--fg); font-family: "IBM Plex Mono", "PT Mono", monospace; margin: 0; padding: 0; font-size: 13px; }
+    sw-head { display: block; font-size: 1.4em; border-bottom: 1.5px solid var(--fg); width: 100%; margin-bottom: 0.65em; padding-bottom: 0.5em; font-weight: 600; letter-spacing: 0.05em; }
+    sw-section { display: block; padding-bottom: 0.3em; border-bottom: 1px solid var(--mg); }
+    button {
+      appearance: none; background: transparent; padding: 8px 16px;
+      margin-inline: 0.15em; margin-block: 0.3em; color: var(--fg);
+      font-size: 12px; font-family: "IBM Plex Mono", monospace;
+      border-radius: 2px; border: 1.5px solid var(--fg);
+      transition: all 0.25s cubic-bezier(0.4,0,0.2,1); cursor: pointer; letter-spacing: 0.04em;
+    }
+    button:hover, button:focus { background-color: var(--bg2); border-color: var(--highlight); outline: none; animation: border 1s linear 0s infinite forwards; }
+    button:active { color: var(--accent); }
+    button.primary { background-color: var(--accent); color: var(--bg); border-color: transparent; font-weight: 600; }
+    button.primary:hover { border-color: var(--highlight); }
+    button.active { background-color: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+    @keyframes border { 0%,100% { border-color: var(--highlight); } 50% { border-color: var(--highlight2); } }
+
+    /* ── Layout ── */
+    #app { min-height: 100vh; }
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 24px 12px; border-bottom: 2px solid var(--fg);
+      position: sticky; top: 0; z-index: 100; background: var(--bg);
+    }
+    .header-left { display: flex; align-items: baseline; gap: 16px; }
+    .header-title { font-size: 1.6em; font-weight: 600; letter-spacing: 0.1em; color: var(--accent); }
+    .header-sub { font-size: 0.75em; color: var(--highlight); letter-spacing: 0.08em; }
+    .header-right { display: flex; align-items: center; gap: 10px; }
+
+    .status-row { display: flex; gap: 8px; flex-wrap: wrap; padding: 8px 24px; background: var(--bg2); border-bottom: 1px solid var(--mg); }
+    .chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 2px; font-size: 11px; letter-spacing: 0.04em; border: 1px solid var(--mg); }
+    .chip-ok   { border-color: var(--accent); color: var(--accent); }
+    .chip-warn { border-color: #ffaa00; color: #ffaa00; }
+    .chip-tbd  { border-color: #ff4455; color: #ff4455; }
+    .chip-info { border-color: var(--highlight); color: var(--highlight); }
+
+    nav.tabs { display: flex; gap: 0; padding: 12px 24px 0; border-bottom: 1px solid var(--mg); background: var(--bg); overflow-x: auto; }
+    nav.tabs button { border-bottom: none; border-radius: 2px 2px 0 0; margin: 0 2px; padding: 8px 18px; animation: none !important; }
+    nav.tabs button.active { background: var(--bg2); border-color: var(--mg); border-bottom: 2px solid var(--accent); color: var(--accent); }
+    nav.tabs button:not(.active) { border-color: transparent; color: var(--fg); opacity: 0.6; }
+    nav.tabs button:not(.active):hover { opacity: 1; border-color: var(--mg); background: var(--bg2); animation: none !important; }
+
+    main { padding: 24px; max-width: 1400px; }
+
+    /* ── Progression ── */
+    .progression-tree { display: flex; flex-direction: column; }
+    .prog-node {
+      display: grid; grid-template-columns: 44px 88px 1fr 180px 120px;
+      align-items: center; gap: 12px; padding: 10px 16px;
+      border: 1px solid var(--mg); border-bottom: none; background: var(--bg2);
+    }
+    .prog-node:first-child { border-radius: 2px 2px 0 0; }
+    .prog-node:last-child  { border-bottom: 1px solid var(--mg); border-radius: 0 0 2px 2px; }
+    .prog-node:hover { border-color: var(--highlight); z-index: 1; position: relative; }
+    .prog-node.endgame { border-color: var(--accent); background: rgba(1,255,203,0.04); }
+    .prog-node.tbd-node { opacity: 0.4; border-style: dashed; }
+
+    .level-badge { font-size: 10px; color: var(--mg); text-align: center; line-height: 1.3; }
+    .ticker-badge {
+      font-family: "IBM Plex Mono", monospace; font-weight: 600; font-size: 11px;
+      color: var(--accent); letter-spacing: 0.1em; padding: 3px 8px;
+      border: 1px solid var(--accent); border-radius: 2px; text-align: center;
+    }
+    .ticker-badge.tbd { color: var(--mg); border-color: var(--mg); }
+    .sub-name { font-size: 13px; font-weight: 600; letter-spacing: 0.02em; }
+    .sub-name small { display: block; font-size: 10px; font-weight: 400; color: var(--mg); margin-top: 3px; }
+    .threshold-val { text-align: right; font-size: 11px; color: var(--highlight); }
+    .threshold-val.starts { color: var(--accent); font-weight: 600; }
+    .upgrade-progress { display: flex; gap: 3px; justify-content: flex-end; align-items: center; }
+    .upg-pip { width: 8px; height: 8px; border-radius: 1px; flex-shrink: 0; }
+    .upg-pip.named   { background: var(--accent); }
+    .upg-pip.empty   { background: var(--mg); }
+    .upg-pip.tbd-tier{ background: transparent; border: 1px dashed var(--mg); }
+    .pip-gap { width: 4px; }
+
+    .fork-row { display: flex; align-items: stretch; border: 1px solid var(--highlight); border-bottom: none; background: var(--bg); }
+    .fork-row.last-fork { border-bottom: 1px solid var(--highlight); }
+    .fork-label-col { display: flex; align-items: center; justify-content: center; padding: 10px 14px; min-width: 80px; border-right: 1px solid var(--highlight); }
+    .fork-label { font-size: 10px; color: var(--highlight); text-align: center; letter-spacing: 0.07em; line-height: 1.6; }
+    .fork-options { display: flex; flex: 1; }
+    .fork-option { flex: 1; padding: 10px 16px; border-right: 1px solid var(--mg); display: grid; grid-template-columns: 88px 1fr 120px; gap: 12px; align-items: center; }
+    .fork-option:last-child { border-right: none; }
+    .fork-option:hover { background: var(--bg2); }
+    .fork-option.tbd-node { opacity: 0.4; }
+    .or-divider { display: flex; align-items: center; justify-content: center; padding: 0 10px; font-size: 10px; color: var(--mg); border-right: 1px solid var(--mg); flex-shrink: 0; }
+    .connector-line { height: 14px; margin-left: 56px; border-left: 1px solid var(--mg); }
+
+    /* ── Subsidiary cards ── */
+    .sub-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+    .sub-card { border: 1px solid var(--mg); border-radius: 2px; overflow: hidden; background: var(--bg2); }
+    .sub-card.tbd-card { opacity: 0.45; border-style: dashed; }
+    .sub-card-header { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--mg); cursor: pointer; user-select: none; }
+    .sub-card-header:hover { background: rgba(255,255,255,0.03); }
+    .sub-card-body { padding: 12px 14px; }
+    .sub-meta { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+    .meta-badge { font-size: 10px; padding: 2px 8px; border-radius: 2px; border: 1px solid var(--mg); color: var(--mg); }
+    .meta-badge.cat-media     { border-color: #6BD3E8; color: #6BD3E8; }
+    .meta-badge.cat-data      { border-color: #01FFCB; color: #01FFCB; }
+    .meta-badge.cat-body      { border-color: #ffaa00; color: #ffaa00; }
+    .meta-badge.cat-industrial{ border-color: #aaaaaa; color: #aaaaaa; }
+    .meta-badge.cat-endgame   { border-color: var(--accent); color: var(--accent); }
+    .meta-badge.fork-badge    { border-color: var(--highlight); color: var(--highlight); }
+
+    .tier-section { margin-bottom: 12px; }
+    .tier-section:last-child { margin-bottom: 0; }
+    .tier-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .tier-label { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; padding: 2px 8px; border-radius: 2px; }
+    .tier-1 { background: rgba(1,255,203,0.12); color: var(--accent); }
+    .tier-2 { background: rgba(255,170,0,0.12); color: #ffaa00; }
+    .tier-3 { background: rgba(255,68,85,0.12); color: #ff4455; }
+    .gov-prereq-tag { font-size: 9px; color: var(--highlight); border: 1px solid var(--highlight); padding: 1px 6px; border-radius: 2px; margin-left: auto; letter-spacing: 0.03em; white-space: nowrap; }
+    .upgrade-list { display: flex; flex-direction: column; gap: 3px; }
+    .upgrade-item { display: flex; align-items: center; gap: 7px; padding: 4px 8px; border-radius: 2px; font-size: 11px; }
+    .upgrade-item.named { background: rgba(255,255,255,0.04); }
+    .upgrade-item.tbd   { color: var(--mg); border: 1px dashed rgba(255,255,255,0.07); }
+    .upg-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+    .upg-dot.named { background: var(--accent); }
+    .upg-dot.tbd   { background: var(--mg); }
+    .collapse-arrow { margin-left: auto; font-size: 11px; color: var(--mg); transition: transform 0.2s; }
+    .sub-card.collapsed .collapse-arrow { transform: rotate(-90deg); }
+    .sub-card.collapsed .sub-card-body { display: none; }
+
+    /* ── Gov Track ── */
+    .gov-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+    .gov-cat-card { border: 1px solid var(--mg); border-radius: 2px; background: var(--bg2); overflow: hidden; }
+    .gov-cat-header { padding: 12px 14px; border-bottom: 1px solid var(--mg); font-weight: 600; font-size: 12px; letter-spacing: 0.06em; display: flex; align-items: center; justify-content: space-between; }
+    .gov-upgrade-list { padding: 10px 14px; display: flex; flex-direction: column; gap: 6px; }
+    .gov-upgrade-item { padding: 7px 10px; border-radius: 2px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); font-size: 11px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .gate-tag { font-size: 9px; color: #ffaa00; border: 1px solid #ffaa00; padding: 1px 6px; border-radius: 2px; white-space: nowrap; flex-shrink: 0; }
+    .gov-count { font-size: 10px; color: var(--accent); }
+
+    /* ── HQ ── */
+    .hq-list { display: flex; flex-direction: column; border: 1px solid var(--mg); border-radius: 2px; overflow: hidden; }
+    .hq-row { display: grid; grid-template-columns: 2fr 1fr 2fr; gap: 16px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--mg); background: var(--bg2); }
+    .hq-row:last-child { border-bottom: none; }
+    .hq-row:hover { background: rgba(255,255,255,0.02); }
+    .hq-row.header-row { background: var(--bg); border-bottom: 1px solid var(--fg) !important; }
+    .hq-row.endgame-row { border-left: 3px solid var(--accent); }
+    .hq-name { font-size: 12px; font-weight: 600; }
+    .hq-threshold { font-size: 11px; color: var(--highlight); text-align: center; }
+    .hq-effect { font-size: 11px; color: var(--mg); }
+    .col-label { font-size: 10px; letter-spacing: 0.08em; color: var(--mg); }
+
+    /* ── Synergies ── */
+    .syn-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 16px; }
+    .syn-card { border: 1px solid var(--mg); border-radius: 2px; background: var(--bg2); padding: 16px; }
+    .syn-card.god-mode { border-color: var(--accent); background: rgba(1,255,203,0.04); }
+    .syn-name { font-size: 13px; font-weight: 600; letter-spacing: 0.04em; margin-bottom: 10px; }
+    .syn-requires-label { font-size: 10px; color: var(--mg); margin-bottom: 5px; letter-spacing: 0.06em; }
+    .req-tags { margin-bottom: 10px; }
+    .req-tag { display: inline-block; font-size: 10px; margin: 2px; padding: 2px 7px; border: 1px solid var(--mg); border-radius: 2px; }
+    .syn-effect { font-size: 12px; color: var(--accent); font-weight: 600; margin-bottom: 10px; }
+    .syn-flavour { font-size: 11px; color: var(--mg); line-height: 1.6; border-left: 2px solid var(--mg); padding-left: 10px; font-style: italic; }
+
+    /* ── Formula ── */
+    .formula-wrap { max-width: 720px; }
+    .formula-equation { font-size: 13px; line-height: 2.4; padding: 20px; background: var(--bg2); border: 1px solid var(--mg); border-radius: 2px; margin-bottom: 20px; }
+    .f-label { color: var(--mg); }
+    .f-val   { color: var(--accent); font-weight: 600; }
+    .f-op    { color: var(--highlight); padding: 0 8px; }
+    .f-final { border-top: 1px solid var(--mg); margin-top: 12px; padding-top: 14px; }
+    .formula-table { width: 100%; border-collapse: collapse; border: 1px solid var(--mg); border-radius: 2px; overflow: hidden; }
+    .formula-table th { padding: 8px 14px; background: var(--bg); border-bottom: 1px solid var(--fg); text-align: left; font-size: 10px; letter-spacing: 0.08em; color: var(--mg); }
+    .formula-table td { padding: 10px 14px; border-bottom: 1px solid var(--mg); font-size: 12px; vertical-align: top; }
+    .formula-table tr:last-child td { border-bottom: none; }
+    .formula-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .f-key  { color: var(--accent); font-weight: 600; }
+    .f-expr { color: var(--highlight); font-style: italic; }
+    .f-note { color: var(--mg); font-size: 11px; }
+    .open-question { margin-top: 20px; padding: 14px; border: 1px dashed #ff4455; border-radius: 2px; }
+    .oq-label { color: #ff4455; font-size: 11px; font-weight: 600; margin-bottom: 6px; }
+    .oq-body  { font-size: 11px; color: var(--mg); line-height: 1.6; }
+
+    /* ── Misc ── */
+    .section-intro { color: var(--mg); font-size: 11px; margin-bottom: 20px; line-height: 1.7; }
+    .tbd-note { display: inline-flex; align-items: center; font-size: 10px; color: #ff4455; border: 1px dashed #ff4455; padding: 2px 8px; border-radius: 2px; }
+    .tab-section { animation: fadeIn 0.15s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--mg); border-radius: 2px; }
+  </style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="header-left">
+      <span class="header-title">EXPAND!</span>
+      <span class="header-sub">GAME DESIGN VISUALIZER</span>
+    </div>
+    <div class="header-right">
+      <span id="ver-badge" class="chip chip-info">v0.1.0</span>
+      <button onclick="toggleTheme()">◐ THEME</button>
+    </div>
+  </header>
+
+  <div class="status-row" id="status-row">
+    <span class="chip chip-info">Loading game data…</span>
+  </div>
+
+  <nav class="tabs">
+    <button class="active" onclick="showTab('progression', this)">PROGRESSION</button>
+    <button onclick="showTab('subsidiaries', this)">SUBSIDIARIES</button>
+    <button onclick="showTab('govtrack', this)">GOV TRACK</button>
+    <button onclick="showTab('hq', this)">HQ UPGRADES</button>
+    <button onclick="showTab('synergies', this)">SYNERGIES</button>
+    <button onclick="showTab('formula', this)">FORMULA</button>
+  </nav>
+
+  <main>
+    <div id="tab-progression"  class="tab-section"></div>
+    <div id="tab-subsidiaries" class="tab-section" hidden></div>
+    <div id="tab-govtrack"     class="tab-section" hidden></div>
+    <div id="tab-hq"           class="tab-section" hidden></div>
+    <div id="tab-synergies"    class="tab-section" hidden></div>
+    <div id="tab-formula"      class="tab-section" hidden></div>
+  </main>
+</div>
+
+<script>
+// ── Theme ─────────────────────────────────────────────────────────
+function toggleTheme() {
+  document.documentElement.classList.toggle('dark');
+  document.documentElement.classList.toggle('light');
+}
+
+// ── Tabs ──────────────────────────────────────────────────────────
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-section').forEach(s => s.hidden = true);
+  document.querySelectorAll('nav.tabs button').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).hidden = false;
+  btn.classList.add('active');
+}
+
+// ── Formatting helpers ────────────────────────────────────────────
+function fmt(n) {
+  if (n === null || n === undefined) return '<span class="tbd-note">TBD</span>';
+  if (n === 0) return '<span style="color:var(--accent);font-weight:600">STARTS UNLOCKED</span>';
+  if (n >= 1e18) return '$1 quintillion';
+  if (n >= 1e15) return '$' + (n/1e15).toFixed(0) + 'Q';
+  if (n >= 1e12) return '$' + (n/1e12).toFixed(0) + 'T';
+  if (n >= 1e9)  return '$' + (n/1e9).toFixed(0)  + 'B';
+  if (n >= 1e6)  return '$' + (n/1e6).toFixed(1)  + 'M';
+  if (n >= 1e3)  return '$' + (n/1e3).toFixed(0)  + 'K';
+  return '$' + n;
+}
+
+function catBadge(cat) {
+  if (!cat) return '<span class="meta-badge">CAT TBD</span>';
+  return `<span class="meta-badge cat-${cat}">${cat.toUpperCase()}</span>`;
+}
+
+function upgradePips(sub) {
+  return sub.upgrades.map(tier => {
+    const named = tier.items.length;
+    const isTBDTier = named === 0;
+    return Array.from({length: 5}, (_, i) =>
+      `<div class="upg-pip ${i < named ? 'named' : isTBDTier ? 'tbd-tier' : 'empty'}"></div>`
+    ).join('');
+  }).join('<div class="pip-gap"></div>');
+}
+
+// ── Status bar ────────────────────────────────────────────────────
+function renderStatus(d) {
+  const subs = d.subsidiaries;
+  const tbdSubs = subs.filter(s => s.name === 'TBD').length;
+  let named = 0, total = 0;
+  subs.forEach(s => s.upgrades.forEach(t => { total += 5; named += t.items.length; }));
+  const govCats = d.governmentTrack.categories;
+  const gated = govCats.reduce((a, c) => a + c.upgrades.filter(u => u.gates).length, 0);
+  document.getElementById('status-row').innerHTML = `
+    <span class="chip chip-ok">✓ ${subs.length - tbdSubs}/${subs.length} SUBSIDIARIES NAMED</span>
+    <span class="chip chip-ok">✓ ${named}/${total} UPGRADES NAMED</span>
+    <span class="chip chip-tbd">✗ ${total - named} UPGRADES TBD</span>
+    <span class="chip chip-warn">⚠ FORK #4 OPTION B TBD</span>
+    <span class="chip chip-warn">⚠ GOV GATING: ${gated} GATES MAPPED — REST TBD</span>
+    <span class="chip chip-warn">⚠ ENDGAME RESOLUTION TBD</span>
+    <span class="chip chip-info">20 GOV TRACK UPGRADES NAMED ✓</span>
+  `;
+}
+
+// ── PROGRESSION ───────────────────────────────────────────────────
+function renderProgression(d) {
+  const subById = {};
+  d.subsidiaries.forEach(s => subById[s.id] = s);
+  const forkGroupMap = {};
+  d.subsidiaries.forEach(s => {
+    if (s.forkId) {
+      if (!forkGroupMap[s.forkId]) forkGroupMap[s.forkId] = {};
+      forkGroupMap[s.forkId][s.forkSide] = s;
+    }
+  });
+  const forkById = {};
+  d.forks.forEach(f => forkById[f.id] = f);
+
+  const sequence = [
+    {type:'sub', id:'publishing'},
+    {type:'fork', id:'fork1'},
+    {type:'sub', id:'manufacturing'},
+    {type:'sub', id:'stream'},
+    {type:'fork', id:'fork2'},
+    {type:'sub', id:'intelligence'},
+    {type:'fork', id:'fork3'},
+    {type:'sub', id:'life'},
+    {type:'sub', id:'cognitive'},
+    {type:'sub', id:'defense'},
+    {type:'sub', id:'quantum'},
+    {type:'fork', id:'fork4'},
+    {type:'sub', id:'solar'},
+    {type:'sub', id:'eternal'},
+  ];
+
+  let lvl = 1;
+  let html = `
+    <sw-head>PROGRESSION PATH</sw-head>
+    <p class="section-intro">Full game path — ${d.subsidiaries.filter(s => !s.forkId || s.forkSide === 'A').length} levels · ${d.forks.length} forks · ${d.subsidiaries.length} total subsidiaries.<br>
+    Upgrade pip rows show T1 / T2 / T3 (5 slots each): <span style="color:var(--accent)">■ named</span> &nbsp; <span style="color:var(--mg)">■ empty</span> &nbsp; <span style="color:var(--mg);opacity:.5">□ tier TBD</span></p>
+    <div class="progression-tree">
+  `;
+
+  sequence.forEach((entry, idx) => {
+    const isLast = idx === sequence.length - 1;
+    if (entry.type === 'sub') {
+      const s = subById[entry.id];
+      if (!s) return;
+      const isEnd = s.id === 'eternal';
+      html += `
+        <div class="prog-node${isEnd ? ' endgame' : ''}${s.name === 'TBD' ? ' tbd-node' : ''}${isLast ? ' last-prog' : ''}">
+          <div class="level-badge">LVL<br>${lvl++}</div>
+          <div class="ticker-badge${s.name === 'TBD' ? ' tbd' : ''}">${s.ticker}</div>
+          <div class="sub-name">${s.name}<small>${catBadge(s.category)}</small></div>
+          <div class="threshold-val${s.unlockThreshold === 0 ? ' starts' : ''}">${fmt(s.unlockThreshold)}</div>
+          <div class="upgrade-progress">${upgradePips(s)}</div>
+        </div>
+      `;
+    } else {
+      const fk = forkById[entry.id];
+      const optA = forkGroupMap[entry.id]?.['A'];
+      const optB = forkGroupMap[entry.id]?.['B'];
+      html += `
+        <div class="connector-line"></div>
+        <div class="fork-row">
+          <div class="fork-label-col">
+            <div class="fork-label">${fk.label}<br>──<br>${fmt(fk.threshold)}</div>
+          </div>
+          <div class="fork-options">
+            ${forkOpt(optA, lvl++)}
+            <div class="or-divider">OR</div>
+            ${forkOpt(optB, lvl++)}
+          </div>
+        </div>
+        <div class="connector-line"></div>
+      `;
+    }
+  });
+
+  html += '</div>';
+  document.getElementById('tab-progression').innerHTML = html;
+}
+
+function forkOpt(s, lvl) {
+  if (!s) return `<div class="fork-option tbd-node" style="justify-content:center;align-items:center;display:flex"><span class="tbd-note" style="font-size:12px">TBD</span></div>`;
+  return `
+    <div class="fork-option${s.name === 'TBD' ? ' tbd-node' : ''}">
+      <div class="ticker-badge${s.name === 'TBD' ? ' tbd' : ''}" style="justify-self:start">${s.ticker}</div>
+      <div class="sub-name">${s.name}<small>${catBadge(s.category)}</small></div>
+      <div class="upgrade-progress">${upgradePips(s)}</div>
+    </div>
+  `;
+}
+
+// ── SUBSIDIARIES ──────────────────────────────────────────────────
+function renderSubsidiaries(d) {
+  let html = `
+    <sw-head>SUBSIDIARIES</sw-head>
+    <p class="section-intro">All ${d.subsidiaries.length} subsidiaries · click a card to expand/collapse · tier colours:
+    <span class="tier-label tier-1">T1 corporate greed</span>
+    <span class="tier-label tier-2">T2 actively harmful</span>
+    <span class="tier-label tier-3">T3 cartoonishly evil</span></p>
+    <div class="sub-grid">
+  `;
+  d.subsidiaries.forEach(s => {
+    const named = s.upgrades.reduce((a, t) => a + t.items.length, 0);
+    const forkBadge = s.forkId ? `<span class="meta-badge fork-badge">${s.forkId.toUpperCase()} · SIDE ${s.forkSide}</span>` : '';
+    const rateBadge = s.baseRate !== null
+      ? `<span class="meta-badge">RATE: ${s.baseRate}/s</span>`
+      : `<span class="meta-badge">BASE RATE TBD</span>`;
+    html += `
+      <div class="sub-card${s.name === 'TBD' ? ' tbd-card' : ''}" id="card-${s.id}">
+        <div class="sub-card-header" onclick="toggleCard('${s.id}')">
+          <div class="ticker-badge${s.name === 'TBD' ? ' tbd' : ''}">${s.ticker}</div>
+          <div style="flex:1">
+            <div style="font-weight:600;font-size:12px;letter-spacing:.03em">${s.name}</div>
+            <div style="font-size:10px;color:var(--mg);margin-top:2px">${fmt(s.unlockThreshold)}</div>
+          </div>
+          <div style="font-size:10px;color:var(--accent);margin-right:8px">${named}/15</div>
+          <div class="collapse-arrow">▾</div>
+        </div>
+        <div class="sub-card-body">
+          <div class="sub-meta">${catBadge(s.category)}${forkBadge}${rateBadge}</div>
+          ${s.upgrades.map(t => renderTier(t)).join('')}
+        </div>
+      </div>
+    `;
+  });
+  html += '</div>';
+  document.getElementById('tab-subsidiaries').innerHTML = html;
+}
+
+function renderTier(tier) {
+  const govTag = tier.govPrereq
+    ? `<span class="gov-prereq-tag">REQ: ${tier.govPrereq.replace(/_/g,' ').toUpperCase()}</span>`
+    : '';
+  let items = tier.items.map(u =>
+    `<div class="upgrade-item named"><div class="upg-dot named"></div>${u.name}</div>`
+  ).join('');
+  for (let i = tier.items.length; i < 5; i++) {
+    items += `<div class="upgrade-item tbd"><div class="upg-dot tbd"></div>— TBD —</div>`;
+  }
+  const tierClasses = ['','tier-1','tier-2','tier-3'];
+  const tierLabels  = ['','TIER 1','TIER 2','TIER 3'];
+  return `
+    <div class="tier-section">
+      <div class="tier-header">
+        <span class="tier-label ${tierClasses[tier.tier]}">${tierLabels[tier.tier]}</span>
+        ${govTag}
+      </div>
+      <div class="upgrade-list">${items}</div>
+    </div>
+  `;
+}
+
+function toggleCard(id) {
+  document.getElementById('card-' + id).classList.toggle('collapsed');
+}
+
+// ── GOV TRACK ─────────────────────────────────────────────────────
+function renderGovTrack(d) {
+  const cats = d.governmentTrack.categories;
+  const gated = cats.reduce((a, c) => a + c.upgrades.filter(u => u.gates).length, 0);
+  let html = `
+    <sw-head>EXPAND POLICY — GOVERNMENT TRACK</sw-head>
+    <p class="section-intro">20 upgrades across 4 categories. Gates Tier 2 and Tier 3 subsidiary upgrades only — not Tier 1.
+    Completing all 20 is a hard prerequisite for Expand Eternal.<br>
+    ${gated} gate mappings confirmed · remaining subsidiaries' T2/T3 prerequisites are TBD.</p>
+    <div class="gov-grid">
+  `;
+  const catNums = ['①','②','③','④'];
+  cats.forEach((cat, i) => {
+    html += `
+      <div class="gov-cat-card">
+        <div class="gov-cat-header">
+          ${catNums[i]} ${cat.name.toUpperCase()}
+          <span class="gov-count">${cat.upgrades.length}/5 ✓</span>
+        </div>
+        <div class="gov-upgrade-list">
+          ${cat.upgrades.map(u => `
+            <div class="gov-upgrade-item">
+              <span>${u.name}</span>
+              ${u.gates ? `<span class="gate-tag">GATES: ${u.gates.replace(/_/g,' ').toUpperCase()}</span>` : ''}
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  });
+  html += '</div>';
+  document.getElementById('tab-govtrack').innerHTML = html;
+}
+
+// ── HQ UPGRADES ───────────────────────────────────────────────────
+function renderHQ(d) {
+  let html = `
+    <sw-head>EXPAND HQ — GLOBAL UPGRADES</sw-head>
+    <p class="section-intro">8 global upgrades gated by total revenue milestones. All stack multiplicatively.
+    The final upgrade triggers the endgame sequence.</p>
+    <div class="hq-list">
+      <div class="hq-row header-row">
+        <div class="col-label">UPGRADE</div>
+        <div class="col-label" style="text-align:center">THRESHOLD</div>
+        <div class="col-label">EFFECT</div>
+      </div>
+      ${d.hqUpgrades.map(u => `
+        <div class="hq-row${u.id === 'shareholder_value' ? ' endgame-row' : ''}">
+          <div class="hq-name">${u.name}</div>
+          <div class="hq-threshold">${fmt(u.threshold)}</div>
+          <div class="hq-effect">${u.effect}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  document.getElementById('tab-hq').innerHTML = html;
+}
+
+// ── SYNERGIES ─────────────────────────────────────────────────────
+function renderSynergies(d) {
+  let html = `
+    <sw-head>SUBSIDIARY SYNERGIES</sw-head>
+    <p class="section-intro">6 synergies — hidden until triggered. Stack multiplicatively on top of all other bonuses.
+    God Mode is the final gate before Expand Eternal unlocks.</p>
+    <div class="syn-grid">
+      ${d.synergies.map(s => `
+        <div class="syn-card${s.id === 'god_mode' ? ' god-mode' : ''}">
+          <div class="syn-name">${s.name.toUpperCase()}</div>
+          <div class="syn-requires-label">REQUIRES:</div>
+          <div class="req-tags">
+            ${s.requires.map(r => `<span class="req-tag">${r.replace(/_/g,' ').toUpperCase()}</span>`).join('')}
+          </div>
+          <div class="syn-effect">${s.effect}</div>
+          <div class="syn-flavour">${s.flavourText}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  document.getElementById('tab-synergies').innerHTML = html;
+}
+
+// ── FORMULA ───────────────────────────────────────────────────────
+function renderFormula(d) {
+  document.getElementById('tab-formula').innerHTML = `
+    <sw-head>INCOME FORMULA</sw-head>
+    <p class="section-intro">${d.formula.description}</p>
+    <div class="formula-wrap">
+      <div class="formula-equation">
+        <div><span class="f-label">Base Income</span><span class="f-op">=</span><span class="f-val">Σ (subsidiary_rate × upgrade_boost)</span></div>
+        <div><span class="f-op">×</span><span class="f-label">Tier Multi</span><span class="f-op">=</span><span class="f-val">(1 + 0.5 per tier completed)</span></div>
+        <div><span class="f-op">×</span><span class="f-label">Synergy</span><span class="f-op">=</span><span class="f-val">2×–4× if triggered</span></div>
+        <div><span class="f-op">×</span><span class="f-label">HQ Global</span><span class="f-op">=</span><span class="f-val">stacking HQ bonuses</span></div>
+        <div><span class="f-op">×</span><span class="f-label">Gov Track</span><span class="f-op">=</span><span class="f-val">(1 + 0.1 per gov upgrade owned)</span></div>
+        <div><span class="f-op">×</span><span class="f-label">Prestige</span><span class="f-op">=</span><span class="f-val">(total_revenue / threshold) ^ 0.15</span></div>
+        <div class="f-final">
+          <span class="f-label">FINAL INCOME</span><span class="f-op">=</span>
+          <span class="f-val">Base × Tier × Synergy × HQ × Gov × Prestige</span>
+        </div>
+      </div>
+      <table class="formula-table">
+        <thead><tr><th>COMPONENT</th><th>FORMULA</th><th>NOTES</th></tr></thead>
+        <tbody>
+          ${d.formula.components.map(c => `
+            <tr>
+              <td><span class="f-key">${c.key.toUpperCase()}</span><br><span style="font-size:10px;color:var(--mg)">${c.label}</span></td>
+              <td><span class="f-expr">${c.formula}</span></td>
+              <td><span class="f-note">${c.notes}</span></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      <div class="open-question">
+        <div class="oq-label">⚠ OPEN QUESTION — PRESTIGE COMPONENT</div>
+        <div class="oq-body">The Prestige multiplier is in the formula but no prestige/reset mechanic is described in the GDD. Is this a soft continuous scaling bonus, or the stub of a NG+ prestige system? Needs a design decision before the formula is finalised.</div>
+      </div>
+    </div>
+  `;
+}
+
+// ── Init ──────────────────────────────────────────────────────────
+async function init() {
+  let data;
+  try {
+    const resp = await fetch('../data/game-data.json');
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    data = await resp.json();
+  } catch(e) {
+    document.getElementById('status-row').innerHTML = `
+      <span class="chip chip-tbd">⚠ Could not load game-data.json — open via GitHub Pages or run: python3 -m http.server 8000 in your repo root, then visit localhost:8000/visualizer/</span>
+    `;
+    return;
+  }
+  renderStatus(data);
+  renderProgression(data);
+  renderSubsidiaries(data);
+  renderGovTrack(data);
+  renderHQ(data);
+  renderSynergies(data);
+  renderFormula(data);
+}
+
+init();
+</script>
+</body>
+</html>
