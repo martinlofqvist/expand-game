@@ -3,427 +3,287 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EXPAND! — Game Design Visualizer</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <title>EXPAND! — Game Design CMS</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:        #e1e1e1;
-      --surface:   #ffffff;
-      --surface2:  #f5f5f5;
-      --border:    rgba(0,0,0,0.07);
-      --text:      #1a1a1a;
-      --text2:     #666666;
-      --text3:     #999999;
-      --blue:      #2f6de0;
-      --blue-light:#e8effe;
-      --green:     #3ab56e;
-      --green-light:#e6f7ed;
-      --orange:    #e07d2f;
-      --orange-light:#fef3e8;
-      --red:       #d93a3a;
-      --red-light: #fdeaea;
-      --shadow:    0 2px 12px rgba(0,0,0,0.09);
-      --shadow-sm: 0 1px 4px rgba(0,0,0,0.07);
-      --radius:    12px;
-      --radius-sm: 8px;
-      --radius-xs: 6px;
+      --bg:       #e1e1e1;
+      --surface:  #ffffff;
+      --surface2: #f4f4f4;
+      --border:   rgba(0,0,0,0.08);
+      --text:     #1a1a1a;
+      --text2:    #555;
+      --text3:    #999;
+      --blue:     #2f6de0;
+      --blue-bg:  #eef3fd;
+      --green:    #3aaa6e;
+      --green-bg: #edf7f3;
+      --orange:   #d97a2f;
+      --orange-bg:#fdf3eb;
+      --red:      #d43a3a;
+      --red-bg:   #fdeaea;
+      --shadow:   0 2px 14px rgba(0,0,0,0.09);
+      --shadow-sm:0 1px 4px rgba(0,0,0,0.06);
+      --r:        12px;
+      --r-sm:     8px;
     }
 
-    html, body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      font-size: 14px;
-      line-height: 1.5;
-      min-height: 100vh;
-    }
+    html, body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; font-size: 14px; min-height: 100vh; }
 
-    /* ── Header ─────────────────────────────────────────── */
+    /* ── Editable fields ─────────────────────────────── */
+    [contenteditable] {
+      border-radius: 4px;
+      padding: 1px 5px;
+      margin: -1px -5px;
+      cursor: text;
+      outline: none;
+      transition: background 0.12s, box-shadow 0.12s;
+      display: inline-block;
+      min-width: 20px;
+    }
+    [contenteditable]:hover { background: var(--blue-bg); }
+    [contenteditable]:focus { background: var(--blue-bg); box-shadow: 0 0 0 2px var(--blue); }
+    [contenteditable].empty:before {
+      content: attr(data-ph);
+      color: #bbb;
+      font-style: italic;
+      pointer-events: none;
+    }
+    [contenteditable].ticker-edit { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; min-width: 50px; }
+    [contenteditable].name-edit { font-weight: 600; }
+    [contenteditable].note-edit { font-size: 12px; color: var(--text2); font-weight: 400; }
+    [contenteditable].flavour-edit { font-size: 12px; color: var(--text2); line-height: 1.6; }
+
+    .num-field {
+      display: inline-block; border: none; background: transparent;
+      font: inherit; color: var(--blue); font-weight: 600; font-size: 12px;
+      cursor: text; border-radius: 4px; padding: 1px 5px; margin: -1px -5px;
+      min-width: 80px; outline: none;
+      transition: background 0.12s, box-shadow 0.12s;
+    }
+    .num-field:hover { background: var(--blue-bg); }
+    .num-field:focus { background: var(--blue-bg); box-shadow: 0 0 0 2px var(--blue); }
+    .num-field::placeholder { color: #bbb; font-weight: 400; font-style: italic; }
+
+    /* ── Header ──────────────────────────────────────── */
     header {
-      background: var(--surface);
-      box-shadow: var(--shadow-sm);
-      padding: 0 28px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 60px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      background: var(--surface); box-shadow: var(--shadow-sm);
+      padding: 0 24px; display: flex; align-items: center;
+      justify-content: space-between; height: 58px;
+      position: sticky; top: 0; z-index: 200;
     }
-    .header-left { display: flex; align-items: center; gap: 12px; }
-    .logo {
-      font-size: 18px;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      color: var(--blue);
-    }
-    .logo-sep { width: 1px; height: 20px; background: var(--border); }
-    .header-sub { font-size: 11px; font-weight: 500; color: var(--text3); letter-spacing: 0.06em; text-transform: uppercase; }
-    .header-right { display: flex; align-items: center; gap: 8px; }
+    .h-left { display: flex; align-items: center; gap: 12px; }
+    .logo { font-size: 17px; font-weight: 700; letter-spacing: 0.06em; color: var(--blue); }
+    .h-sep { width: 1px; height: 20px; background: var(--border); }
+    .h-sub { font-size: 11px; font-weight: 500; color: var(--text3); letter-spacing: 0.05em; text-transform: uppercase; }
+    .h-right { display: flex; align-items: center; gap: 8px; }
 
-    /* ── Status bar ──────────────────────────────────────── */
-    .status-bar {
-      background: var(--surface);
-      border-top: 1px solid var(--border);
-      padding: 8px 28px;
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px; border-radius: 20px; border: none;
+      font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
+      cursor: pointer; letter-spacing: 0.02em;
+      transition: opacity 0.15s, transform 0.1s;
     }
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.02em;
-    }
-    .chip-ok     { background: var(--green-light);  color: var(--green); }
-    .chip-warn   { background: var(--orange-light); color: var(--orange); }
-    .chip-bad    { background: var(--red-light);    color: var(--red); }
-    .chip-info   { background: var(--blue-light);   color: var(--blue); }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: var(--blue); color: #fff; }
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-ghost { background: var(--surface2); color: var(--text2); }
+    .btn-ghost:hover { background: #e8e8e8; }
 
-    /* ── Tab nav ─────────────────────────────────────────── */
-    nav.tabs {
-      background: var(--surface);
-      border-top: 1px solid var(--border);
-      box-shadow: var(--shadow-sm);
-      padding: 10px 28px;
-      display: flex;
-      gap: 6px;
-      overflow-x: auto;
+    #dirty-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--orange); display: none; flex-shrink: 0;
     }
-    nav.tabs button {
-      background: transparent;
-      border: none;
-      padding: 8px 18px;
-      border-radius: 20px;
-      font-family: 'Inter', sans-serif;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text2);
-      cursor: pointer;
-      white-space: nowrap;
-      transition: background 0.15s, color 0.15s;
-      letter-spacing: 0.02em;
-    }
+    #dirty-dot.show { display: block; }
+
+    /* ── Status bar ──────────────────────────────────── */
+    .status-bar { background: var(--surface); border-top: 1px solid var(--border); padding: 7px 24px; display: flex; gap: 6px; flex-wrap: wrap; }
+    .chip { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+    .chip-ok  { background: var(--green-bg);  color: var(--green); }
+    .chip-warn{ background: var(--orange-bg); color: var(--orange); }
+    .chip-bad { background: var(--red-bg);    color: var(--red); }
+    .chip-info{ background: var(--blue-bg);   color: var(--blue); }
+
+    /* ── Tabs ────────────────────────────────────────── */
+    nav.tabs { background: var(--surface); border-top: 1px solid var(--border); box-shadow: var(--shadow-sm); padding: 10px 24px; display: flex; gap: 4px; overflow-x: auto; }
+    nav.tabs button { background: transparent; border: none; padding: 8px 16px; border-radius: 20px; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; color: var(--text3); cursor: pointer; white-space: nowrap; transition: background 0.12s, color 0.12s; }
     nav.tabs button:hover { background: var(--surface2); color: var(--text); }
     nav.tabs button.active { background: var(--blue); color: #fff; }
 
-    /* ── Main layout ─────────────────────────────────────── */
-    main { padding: 24px 28px; max-width: 1320px; }
-    .tab-section { animation: fadeUp 0.18s ease; }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    main { padding: 22px 24px; max-width: 1320px; }
+    .tab-section { animation: up 0.15s ease; }
+    @keyframes up { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
 
-    .section-title {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 6px;
+    .sec-title { font-size: 19px; font-weight: 700; margin-bottom: 5px; }
+    .sec-sub   { font-size: 12px; color: var(--text2); margin-bottom: 18px; line-height: 1.6; }
+
+    /* ── Badges ──────────────────────────────────────── */
+    .badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .b-blue   { background: var(--blue-bg);   color: var(--blue); }
+    .b-green  { background: var(--green-bg);  color: var(--green); }
+    .b-orange { background: var(--orange-bg); color: var(--orange); }
+    .b-gray   { background: var(--surface2);  color: var(--text2); }
+    .b-red    { background: var(--red-bg);    color: var(--red); }
+
+    .ticker-pill {
+      font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.08em; background: var(--blue-bg); color: var(--blue);
+      padding: 3px 8px; border-radius: 6px;
     }
-    .section-sub {
-      font-size: 13px;
-      color: var(--text2);
-      margin-bottom: 20px;
-      line-height: 1.6;
-    }
+    .ticker-pill.tbd { background: var(--surface2); color: var(--text3); }
 
-    /* ── Card base ───────────────────────────────────────── */
-    .card {
-      background: var(--surface);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
-
-    /* ── Badges ──────────────────────────────────────────── */
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      padding: 3px 9px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-    }
-    .badge-blue   { background: var(--blue-light);   color: var(--blue); }
-    .badge-green  { background: var(--green-light);  color: var(--green); }
-    .badge-orange { background: var(--orange-light); color: var(--orange); }
-    .badge-red    { background: var(--red-light);    color: var(--red); }
-    .badge-gray   { background: var(--surface2);     color: var(--text2); }
-
-    .ticker {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      background: var(--blue-light);
-      color: var(--blue);
-      padding: 3px 9px;
-      border-radius: var(--radius-xs);
-    }
-    .ticker.tbd { background: var(--surface2); color: var(--text3); }
-
-    /* ── Progression ─────────────────────────────────────── */
-    .progression-list { display: flex; flex-direction: column; gap: 0; }
-
-    .prog-item {
-      background: var(--surface);
-      display: grid;
-      grid-template-columns: 48px 72px 1fr auto auto;
-      align-items: center;
-      gap: 14px;
-      padding: 14px 18px;
-      border-bottom: 1px solid var(--border);
-      transition: background 0.12s;
-    }
-    .progression-list > .prog-item:first-child { border-radius: var(--radius) var(--radius) 0 0; }
-    .progression-list > *:last-child { border-bottom: none; }
-    .progression-list > .prog-item:last-child { border-radius: 0 0 var(--radius) var(--radius); }
-    .prog-item:hover { background: var(--surface2); }
-    .prog-item.endgame { background: #f0f9ff; }
-    .prog-item.tbd-row { opacity: 0.45; }
-
-    .lvl-num {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--text3);
-      text-align: center;
-      line-height: 1.3;
-    }
-    .prog-name { font-size: 14px; font-weight: 600; }
-    .prog-cat  { font-size: 11px; color: var(--text3); margin-top: 2px; }
-    .prog-threshold { font-size: 12px; font-weight: 600; color: var(--blue); white-space: nowrap; }
-    .prog-threshold.starts { color: var(--green); }
-
+    /* ── Progression (read-only) ─────────────────────── */
+    .prog-list { background: var(--surface); border-radius: var(--r); box-shadow: var(--shadow); overflow: hidden; }
+    .prog-row  { display: grid; grid-template-columns: 48px 74px 1fr auto auto; gap: 14px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border); transition: background 0.1s; }
+    .prog-row:last-child { border-bottom: none; }
+    .prog-row:hover { background: var(--surface2); }
+    .prog-row.endgame { background: #f0f9ff; }
+    .prog-row.tbd-row { opacity: 0.4; }
+    .lvl { font-size: 10px; font-weight: 700; color: var(--text3); text-align: center; line-height: 1.3; }
+    .prog-name-col { }
+    .prog-name-col strong { font-size: 13px; font-weight: 700; display: block; }
+    .prog-name-col span   { font-size: 11px; color: var(--text3); }
+    .prog-thresh { font-size: 12px; font-weight: 600; color: var(--blue); white-space: nowrap; }
+    .prog-thresh.starts { color: var(--green); }
     .pip-row { display: flex; gap: 3px; align-items: center; }
     .pip { width: 7px; height: 7px; border-radius: 2px; }
     .pip.on  { background: var(--blue); }
     .pip.off { background: #ddd; }
     .pip.tbd { background: transparent; border: 1.5px dashed #ccc; }
     .pip-gap { width: 5px; }
-
-    /* Fork block */
-    .fork-block {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-    }
-    .fork-spine {
-      width: 80px;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-right: 1px solid var(--border);
-      padding: 12px;
-    }
-    .fork-spine-label {
-      font-size: 10px;
-      font-weight: 700;
-      color: var(--blue);
-      letter-spacing: 0.06em;
-      text-align: center;
-      line-height: 1.5;
-    }
+    .fork-block { display: flex; border-bottom: 1px solid var(--border); background: var(--surface); }
+    .fork-spine { width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-right: 1px solid var(--border); padding: 12px; }
+    .fork-label { font-size: 10px; font-weight: 700; color: var(--blue); text-align: center; line-height: 1.6; letter-spacing: 0.04em; }
     .fork-options { flex: 1; display: flex; }
-    .fork-opt {
-      flex: 1;
-      padding: 14px 18px;
-      border-right: 1px solid var(--border);
-      display: grid;
-      grid-template-columns: 66px 1fr auto;
-      gap: 12px;
-      align-items: center;
-      transition: background 0.12s;
-    }
+    .fork-opt { flex: 1; padding: 12px 16px; border-right: 1px solid var(--border); display: grid; grid-template-columns: 74px 1fr auto; gap: 12px; align-items: center; transition: background 0.1s; }
     .fork-opt:last-child { border-right: none; }
     .fork-opt:hover { background: var(--surface2); }
-    .fork-opt.tbd-row { opacity: 0.4; }
-    .fork-or {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 10px;
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--text3);
-      border-right: 1px solid var(--border);
-      flex-shrink: 0;
-    }
-    .conn { height: 16px; margin-left: 64px; border-left: 2px solid #ddd; }
+    .fork-or { display: flex; align-items: center; justify-content: center; padding: 0 10px; font-size: 11px; font-weight: 700; color: var(--text3); border-right: 1px solid var(--border); flex-shrink: 0; }
+    .conn { height: 14px; margin-left: 60px; border-left: 2px solid #ddd; }
 
-    /* ── Subsidiaries grid ───────────────────────────────── */
-    .sub-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
-
-    .sub-card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
-    .sub-card.tbd-card { opacity: 0.45; }
-    .sub-card-head {
-      display: flex; align-items: center; gap: 10px;
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--border);
-      cursor: pointer;
-      user-select: none;
-      transition: background 0.12s;
-    }
-    .sub-card-head:hover { background: var(--surface2); }
-    .sub-card-name { flex: 1; }
-    .sub-card-name strong { font-size: 13px; font-weight: 700; display: block; }
-    .sub-card-name span   { font-size: 11px; color: var(--text3); }
+    /* ── Subsidiaries ────────────────────────────────── */
+    .sub-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+    .sub-card { background: var(--surface); border-radius: var(--r); box-shadow: var(--shadow); overflow: hidden; }
+    .sub-card.tbd-card { opacity: 0.5; }
+    .sub-head { display: flex; align-items: center; gap: 10px; padding: 13px 15px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.1s; user-select: none; }
+    .sub-head:hover { background: var(--surface2); }
+    .sub-head-info { flex: 1; }
+    .sub-head-info strong { font-size: 13px; font-weight: 700; display: block; line-height: 1.3; }
+    .sub-head-info small  { font-size: 11px; color: var(--text3); }
     .sub-count { font-size: 11px; font-weight: 600; color: var(--blue); }
-    .sub-arrow { font-size: 12px; color: var(--text3); transition: transform 0.18s; margin-left: 4px; }
+    .sub-arrow { font-size: 11px; color: var(--text3); transition: transform 0.18s; margin-left: 4px; }
     .sub-card.collapsed .sub-arrow { transform: rotate(-90deg); }
-    .sub-card.collapsed .sub-card-body { display: none; }
-    .sub-card-body { padding: 14px 16px; }
+    .sub-card.collapsed .sub-body { display: none; }
+    .sub-body { padding: 14px 15px; }
     .sub-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
 
-    .tier-block { margin-bottom: 12px; }
-    .tier-block:last-child { margin-bottom: 0; }
-    .tier-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-    .tier-pill {
-      font-size: 10px; font-weight: 700; letter-spacing: 0.04em;
-      padding: 3px 9px; border-radius: 20px;
-    }
-    .t1 { background: var(--blue-light);   color: var(--blue); }
-    .t2 { background: var(--orange-light); color: var(--orange); }
-    .t3 { background: var(--red-light);    color: var(--red); }
-    .tier-gate {
-      font-size: 10px; font-weight: 500; color: var(--orange);
-      background: var(--orange-light); padding: 2px 8px; border-radius: 20px;
-      margin-left: auto;
-    }
+    /* Sub header fields (editable) */
+    .sub-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+    .field-row { display: flex; flex-direction: column; gap: 3px; }
+    .field-label { font-size: 10px; font-weight: 600; color: var(--text3); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 2px; }
+
+    /* Tier sections */
+    .tier-sec { margin-bottom: 12px; }
+    .tier-sec:last-child { margin-bottom: 0; }
+    .tier-hdr { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .tier-pill { font-size: 10px; font-weight: 700; letter-spacing: 0.04em; padding: 3px 9px; border-radius: 20px; }
+    .t1 { background: var(--blue-bg);   color: var(--blue); }
+    .t2 { background: var(--orange-bg); color: var(--orange); }
+    .t3 { background: var(--red-bg);    color: var(--red); }
+    .tier-gate-wrap { margin-left: auto; display: flex; align-items: center; gap: 5px; }
+    .tier-gate-label { font-size: 10px; color: var(--text3); }
+
     .upg-list { display: flex; flex-direction: column; gap: 2px; }
-    .upg-row {
-      display: flex; align-items: center; gap: 8px;
-      padding: 5px 8px; border-radius: var(--radius-xs);
-      font-size: 12px;
-    }
-    .upg-row.named { background: var(--surface2); color: var(--text); }
-    .upg-row.empty { color: var(--text3); font-style: italic; }
+    .upg-row { display: flex; align-items: center; gap: 8px; padding: 5px 7px; border-radius: 6px; }
+    .upg-row.has-val { background: var(--surface2); }
     .upg-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
     .upg-dot.on  { background: var(--blue); }
     .upg-dot.off { background: #ccc; }
+    .upg-num { font-size: 10px; color: var(--text3); min-width: 14px; font-weight: 600; }
 
-    /* ── Gov Track ───────────────────────────────────────── */
+    /* ── Gov Track ───────────────────────────────────── */
     .gov-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
-    .gov-card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
-    .gov-card-head {
-      padding: 14px 16px; border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: space-between;
-    }
+    .gov-card { background: var(--surface); border-radius: var(--r); box-shadow: var(--shadow); overflow: hidden; }
+    .gov-card-head { padding: 13px 15px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
     .gov-card-title { font-size: 13px; font-weight: 700; }
-    .gov-card-body { padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
-    .gov-item {
-      padding: 8px 10px; border-radius: var(--radius-xs);
-      background: var(--surface2);
-      font-size: 12px;
-      display: flex; align-items: center; justify-content: space-between; gap: 8px;
-    }
-    .gov-gate {
-      font-size: 10px; font-weight: 600; color: var(--orange);
-      background: var(--orange-light); padding: 2px 7px; border-radius: 20px;
-      white-space: nowrap; flex-shrink: 0;
-    }
+    .gov-body { padding: 10px 12px; display: flex; flex-direction: column; gap: 5px; }
+    .gov-item { padding: 8px 10px; border-radius: 7px; background: var(--surface2); font-size: 12px; }
+    .gov-item-name { font-weight: 500; }
+    .gov-item-gate { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+    .gate-label { font-size: 10px; color: var(--text3); }
 
-    /* ── HQ ──────────────────────────────────────────────── */
-    .hq-list { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
-    .hq-row {
-      display: grid; grid-template-columns: 2fr 160px 2fr;
-      gap: 16px; align-items: center;
-      padding: 14px 18px; border-bottom: 1px solid var(--border);
-      font-size: 13px; transition: background 0.12s;
-    }
+    /* ── HQ ──────────────────────────────────────────── */
+    .hq-table { background: var(--surface); border-radius: var(--r); box-shadow: var(--shadow); overflow: hidden; }
+    .hq-row { display: grid; grid-template-columns: 2fr 150px 2fr; gap: 16px; align-items: start; padding: 13px 16px; border-bottom: 1px solid var(--border); transition: background 0.1s; }
     .hq-row:last-child { border-bottom: none; }
     .hq-row:hover { background: var(--surface2); }
-    .hq-row.head { background: var(--surface2); font-size: 11px; font-weight: 700; color: var(--text3); letter-spacing: 0.05em; text-transform: uppercase; }
+    .hq-row.head { background: var(--surface2); font-size: 10px; font-weight: 700; color: var(--text3); letter-spacing: 0.05em; text-transform: uppercase; }
     .hq-row.head:hover { background: var(--surface2); }
     .hq-row.endgame { background: #f0f9ff; }
-    .hq-name    { font-weight: 600; }
-    .hq-thresh  { font-size: 12px; font-weight: 600; color: var(--blue); text-align: center; }
-    .hq-effect  { font-size: 12px; color: var(--text2); }
 
-    /* ── Synergies ───────────────────────────────────────── */
+    /* ── Synergies ───────────────────────────────────── */
     .syn-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
-    .syn-card {
-      background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow);
-      padding: 18px; display: flex; flex-direction: column; gap: 10px;
-    }
+    .syn-card { background: var(--surface); border-radius: var(--r); box-shadow: var(--shadow); padding: 17px; display: flex; flex-direction: column; gap: 10px; }
     .syn-card.final { background: #f0f9ff; }
-    .syn-name { font-size: 15px; font-weight: 700; }
-    .syn-reqs-label { font-size: 10px; font-weight: 700; color: var(--text3); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 4px; }
-    .req-pills { display: flex; flex-wrap: wrap; gap: 5px; }
-    .req-pill { background: var(--surface2); color: var(--text2); font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
-    .syn-effect { font-size: 13px; font-weight: 600; color: var(--blue); }
-    .syn-flavour { font-size: 12px; color: var(--text2); border-left: 3px solid var(--blue-light); padding-left: 10px; line-height: 1.6; }
+    .syn-name-row { font-size: 14px; font-weight: 700; }
+    .syn-req-label { font-size: 10px; font-weight: 700; color: var(--text3); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px; }
+    .syn-reqs { display: flex; flex-wrap: wrap; gap: 5px; }
+    .req-tag { background: var(--surface2); color: var(--text2); font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
+    .syn-effect-row { font-size: 13px; font-weight: 600; color: var(--blue); }
+    .syn-flavour-row { font-size: 12px; color: var(--text2); border-left: 3px solid var(--blue-bg); padding-left: 10px; line-height: 1.6; }
 
-    /* ── Formula ─────────────────────────────────────────── */
+    /* ── Formula ─────────────────────────────────────── */
     .formula-wrap { max-width: 700px; display: flex; flex-direction: column; gap: 16px; }
-    .formula-card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; }
-    .formula-eq { display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
-    .formula-line { display: flex; align-items: baseline; gap: 6px; padding: 6px 0; border-bottom: 1px solid var(--border); }
-    .formula-line:last-child { border-bottom: none; padding-bottom: 0; }
-    .formula-line.total { padding-top: 14px; margin-top: 6px; border-top: 2px solid var(--text); border-bottom: none; }
-    .fl-op    { color: var(--blue); font-weight: 700; min-width: 16px; }
-    .fl-label { color: var(--text2); min-width: 120px; }
-    .fl-val   { font-weight: 600; color: var(--text); flex: 1; }
-    .fl-val.total-val { font-size: 14px; }
-
-    .formula-table-card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+    .formula-card { background: var(--surface); border-radius: var(--r); box-shadow: var(--shadow); padding: 20px; }
+    .f-row { display: flex; align-items: baseline; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+    .f-row:last-child { border-bottom: none; }
+    .f-row.total { border-top: 2px solid var(--text); padding-top: 14px; margin-top: 6px; }
+    .f-op    { color: var(--blue); font-weight: 700; min-width: 18px; }
+    .f-label { color: var(--text2); min-width: 130px; font-size: 12px; }
+    .f-val   { font-weight: 600; }
+    .f-table-card { background: var(--surface); border-radius: var(--r); box-shadow: var(--shadow); overflow: hidden; }
     table { width: 100%; border-collapse: collapse; }
     thead tr { background: var(--surface2); }
-    th { padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 700; color: var(--text3); letter-spacing: 0.05em; text-transform: uppercase; border-bottom: 1px solid var(--border); }
-    td { padding: 12px 16px; font-size: 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { padding: 9px 14px; text-align: left; font-size: 10px; font-weight: 700; color: var(--text3); letter-spacing: 0.05em; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 14px; font-size: 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: var(--surface2); }
-    .td-key   { font-weight: 700; color: var(--blue); font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
-    .td-expr  { color: var(--text2); font-style: italic; }
-    .td-note  { color: var(--text3); font-size: 11px; }
-
-    .alert-card { background: #fff8f0; border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; border-left: 4px solid var(--orange); }
-    .alert-title { font-size: 12px; font-weight: 700; color: var(--orange); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .td-key  { font-weight: 700; color: var(--blue); font-family: 'IBM Plex Mono', monospace; font-size: 11px; display: block; margin-bottom: 2px; }
+    .alert { background: #fff8f0; border-radius: var(--r); box-shadow: var(--shadow); padding: 15px; border-left: 4px solid var(--orange); }
+    .alert-title { font-size: 12px; font-weight: 700; color: var(--orange); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.04em; }
     .alert-body  { font-size: 12px; color: var(--text2); line-height: 1.6; }
 
-    /* ── Misc ────────────────────────────────────────────── */
-    .tbd-placeholder {
-      display: flex; align-items: center; justify-content: center;
-      padding: 20px; color: var(--text3); font-size: 13px; font-style: italic;
-    }
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
   </style>
 </head>
 <body>
-
 <div id="app">
+
   <header>
-    <div class="header-left">
+    <div class="h-left">
       <span class="logo">EXPAND!</span>
-      <div class="logo-sep"></div>
-      <span class="header-sub">Game Design Visualizer</span>
+      <div class="h-sep"></div>
+      <span class="h-sub">Game Design CMS</span>
     </div>
-    <div class="header-right" id="header-right">
-      <span class="chip chip-info" id="ver-chip">v0.1.0</span>
+    <div class="h-right">
+      <div id="dirty-dot" title="Unsaved changes"></div>
+      <button class="btn btn-ghost" onclick="resetChanges()">Revert</button>
+      <button class="btn btn-primary" onclick="exportJSON()">⬇ Export game-data.json</button>
     </div>
   </header>
 
-  <div class="status-bar" id="status-bar">
-    <span class="chip chip-info">Loading…</span>
-  </div>
+  <div class="status-bar" id="status-bar"></div>
 
   <nav class="tabs">
-    <button class="active" onclick="showTab('progression', this)">Progression</button>
-    <button onclick="showTab('subsidiaries', this)">Subsidiaries</button>
-    <button onclick="showTab('govtrack', this)">Gov Track</button>
-    <button onclick="showTab('hq', this)">HQ Upgrades</button>
-    <button onclick="showTab('synergies', this)">Synergies</button>
-    <button onclick="showTab('formula', this)">Formula</button>
+    <button class="active" onclick="showTab('progression',this)">Progression</button>
+    <button onclick="showTab('subsidiaries',this)">Subsidiaries</button>
+    <button onclick="showTab('govtrack',this)">Gov Track</button>
+    <button onclick="showTab('hq',this)">HQ Upgrades</button>
+    <button onclick="showTab('synergies',this)">Synergies</button>
+    <button onclick="showTab('formula',this)">Formula</button>
   </nav>
 
   <main>
@@ -437,324 +297,631 @@
 </div>
 
 <script>
-// ── Tabs ──────────────────────────────────────────────────────────
-function showTab(id, btn) {
-  document.querySelectorAll('.tab-section').forEach(s => s.hidden = true);
-  document.querySelectorAll('nav.tabs button').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + id).hidden = false;
-  btn.classList.add('active');
-}
+// ═══════════════════════════════════════════════════
+// GAME DATA  — edit this directly or via the UI
+// ═══════════════════════════════════════════════════
+const D = {
+  meta: { name:"Expand!", version:"0.1.0", lastUpdated:"2026-05-26" },
 
-// ── Helpers ───────────────────────────────────────────────────────
-function fmt(n) {
-  if (n === null || n === undefined) return '<span style="color:#ccc;font-style:italic">TBD</span>';
-  if (n === 0) return '<span style="color:var(--green);font-weight:600">Starts unlocked</span>';
-  if (n >= 1e18) return '$1 quintillion';
-  if (n >= 1e15) return '$' + (n/1e15).toFixed(0) + 'Q';
-  if (n >= 1e12) return '$' + (n/1e12).toFixed(0) + 'T';
-  if (n >= 1e9)  return '$' + (n/1e9).toFixed(0) + 'B';
-  if (n >= 1e6)  return '$' + (n/1e6).toFixed(1) + 'M';
-  if (n >= 1e3)  return '$' + (n/1e3).toFixed(0) + 'K';
-  return '$' + n;
-}
+  onboarding: {
+    initialClickValue: 1,
+    internUnlockAfterClicks: 5,
+    internCost: 5,
+    internPassiveRate: 0.333,
+    internFlavorText: "Congratulations. You have your first employee. They are already being underpaid."
+  },
 
-const CAT_LABELS = { media:'Media', data:'Data', body:'Body', industrial:'Industrial', endgame:'Endgame' };
-const CAT_COLORS = { media:'blue', data:'green', body:'orange', industrial:'gray', endgame:'blue' };
+  forks: [
+    { id:"fork1", label:"Fork #1", threshold:250000,          options:["audio","studios"] },
+    { id:"fork2", label:"Fork #2", threshold:150000000,       options:["social","pharma"] },
+    { id:"fork3", label:"Fork #3", threshold:2000000000,      options:["vitals","chemical"] },
+    { id:"fork4", label:"Fork #4", threshold:10000000000000,  options:["orbit",null] }
+  ],
 
-function catBadge(cat) {
-  if (!cat) return '<span class="badge badge-gray">?</span>';
-  return `<span class="badge badge-${CAT_COLORS[cat]||'gray'}">${CAT_LABELS[cat]||cat}</span>`;
+  // tiers[].slots = 5-item array, "" = TBD
+  // On export: slots → items[] with auto IDs
+  subsidiaries: [
+    { id:"publishing",    name:"Expand Publishing",    ticker:"EPUB",  unlockThreshold:0,                   baseRate:null, category:"media",      forkId:null,    forkSide:null,
+      tiers:[
+        { tier:1, govPrereq:"",                            slots:["Hire An Intern","Fire The Editor","Bestseller List Manipulation","Tax The Library","Ghostwriters Are Cheaper"] },
+        { tier:2, govPrereq:"hire_the_regulator",          slots:["Ban The Inconvenient Books","Publishers Don't Pay Royalties Anymore","Curriculum Capture","The Algorithm Recommends Outrage","We Own The Narrative Now"] },
+        { tier:3, govPrereq:"write_the_legislation_yourself", slots:["Burn The Other Books","Illiteracy Is A Business Model","History Is Whatever We Say It Is","The Last Independent Publisher Has Been Acquired","Even The Bible Has A Subscription Fee Now"] }
+      ]
+    },
+    { id:"audio",         name:"Expand Audio",         ticker:"EAUD",  unlockThreshold:250000,              baseRate:null, category:"media",      forkId:"fork1", forkSide:"A",
+      tiers:[
+        { tier:1, govPrereq:"", slots:["Fire The Narrator Use AI","Charge Per Chapter","Exclusive Platform Deal","Sue The Podcast","Automate The Emotion"] },
+        { tier:2, govPrereq:"", slots:["","","","",""] },
+        { tier:3, govPrereq:"", slots:["","","","",""] }
+      ]
+    },
+    { id:"studios",       name:"Expand Studios",       ticker:"ESTR",  unlockThreshold:250000,              baseRate:null, category:"media",      forkId:"fork1", forkSide:"B",
+      tiers:[
+        { tier:1, govPrereq:"", slots:["Reboot Everything","Fire The Writers Room","Sell The Merchandising Rights","Greenlight The Algorithm","Sequel Speedrun"] },
+        { tier:2, govPrereq:"", slots:["","","","",""] },
+        { tier:3, govPrereq:"", slots:["","","","",""] }
+      ]
+    },
+    { id:"manufacturing", name:"Expand Manufacturing", ticker:"EMFG",  unlockThreshold:2500000,             baseRate:null, category:"industrial", forkId:null,    forkSide:null,
+      tiers:[
+        { tier:1, govPrereq:"", slots:["Longer Shifts Same Pay","Child Labor Is Efficiency","Safety Regulations LOL","Offshore Everything","The Factory Doesn't Sleep"] },
+        { tier:2, govPrereq:"", slots:["","","","",""] },
+        { tier:3, govPrereq:"", slots:["","","","",""] }
+      ]
+    },
+    { id:"stream",        name:"Expand Stream",        ticker:"ESTRM", unlockThreshold:25000000,            baseRate:null, category:"media",      forkId:null,    forkSide:null,
+      tiers:[
+        { tier:1, govPrereq:"", slots:["Cancel The Show After Two Seasons","Raise The Price Lower The Quality","Password Sharing Is Theft Probably","Buy Every Competitor","The Algorithm Decides What's Culture Now"] },
+        { tier:2, govPrereq:"", slots:["","","","",""] },
+        { tier:3, govPrereq:"", slots:["","","","",""] }
+      ]
+    },
+    { id:"social",        name:"Expand Social",        ticker:"ESOC",  unlockThreshold:150000000,           baseRate:null, category:"data",       forkId:"fork2", forkSide:"A",
+      tiers:[
+        { tier:1, govPrereq:"", slots:["Algorithmically Outraged","Sell The Data Keep The Smile","Teens Are The Product","Fake News Is Free Content","Buy The Regulator's Kid A Job"] },
+        { tier:2, govPrereq:"", slots:["","","","",""] },
+        { tier:3, govPrereq:"", slots:["","","","",""] }
+      ]
+    },
+    { id:"pharma",        name:"Expand Pharma",        ticker:"EPHA",  unlockThreshold:150000000,           baseRate:null, category:"body",       forkId:"fork2", forkSide:"B",
+      tiers:[
+        { tier:1, govPrereq:"", slots:["Opioid Crisis Speedrun","Suppress The Cure","Insulin Price Goes Brrr","Clinical Trials In Poor Countries","Sackler Family Energy"] },
+        { tier:2, govPrereq:"", slots:["","","","",""] },
+        { tier:3, govPrereq:"", slots:["","","","",""] }
+      ]
+    },
+    { id:"intelligence",  name:"Expand Intelligence",  ticker:"EINT",  unlockThreshold:750000000,           baseRate:null, category:"data",       forkId:null,    forkSide:null,
+      tiers:[
+        { tier:1, govPrereq:"", slots:["Terms Of Service Nobody Reads It","Sell It To Governments","The Camera Was Always On","Delete We Don't Delete","Your Fridge Is Spying On You"] },
+        { tier:2, govPrereq:"", slots:["","","","",""] },
+        { tier:3, govPrereq:"", slots:["","","","",""] }
+      ]
+    },
+    { id:"vitals",        name:"Expand Vitals",        ticker:"EVTL",  unlockThreshold:2000000000,          baseRate:null, category:"body",       forkId:"fork3", forkSide:"A",
+      tiers:[
+        { tier:1, govPrereq:"", slots:["Kidneys Are Renewable Right","The Waiting List Is A Business Model","Plasma For Cash Cash For Plasma","Don't Ask Where It Came From","Premium Organs Premium Price"] },
+        { tier:2, govPrereq:"", slots:["","","","",""] },
+        { tier:3, govPrereq:"", slots:["","","","",""] }
+      ]
+    },
+    { id:"chemical",      name:"Expand Chemical",      ticker:"ECHEM", unlockThreshold:2000000000,          baseRate:null, category:"body",       forkId:"fork3", forkSide:"B",
+      tiers:[
+        { tier:1, govPrereq:"", slots:["Lobby The EPA Into Retirement","Dump It In The River","The Acceptable Level Of Cancer","Rename The Chemical","Sponsor The Regulator's Conference"] },
+        { tier:2, govPrereq:"", slots:["","","","",""] },
+        { tier:3, govPrereq:"", slots:["","","","",""] }
+      ]
+    },
+    { id:"life",          name:"Expand Life",          ticker:"ELIFE", unlockThreshold:10000000000,         baseRate:null, category:"industrial", forkId:null,    forkSide:null,
+      tiers:[
+        { tier:1, govPrereq:"", slots:["Patent The Genome","Sue The Farmer For Saving Seeds","GMO Stands For Good Money Opportunity","We Own Your DNA Now","Clone The Workforce"] },
+        { tier:2, govPrereq:"", slots:["","","","",""] },
+        { tier:3, govPrereq:"", slots:["","","","",""] }
+      ]
+    },
+    { id:"cognitive",     name:"Expand Cognitive",     ticker:"ECOG",  unlockThreshold:100000000000,        baseRate:null, category:"data",       forkId:null,    forkSide:null,
+      tiers:[
+        { tier:1, govPrereq:"",                     slots:["Train It On Everything Ask Nobody","Fire The Creatives","The Bias Is A Feature","Sentience Is A PR Problem","Nobody Understands It Nobody Can Stop It"] },
+        { tier:2, govPrereq:"control_the_narrative", slots:["","","","",""] },
+        { tier:3, govPrereq:"new_world_order_by_expand", slots:["","","","",""] }
+      ]
+    },
+    { id:"defense",       name:"Expand Defense",       ticker:"EDEF",  unlockThreshold:500000000000,        baseRate:null, category:"industrial", forkId:null,    forkSide:null,
+      tiers:[
+        { tier:1, govPrereq:"",                 slots:["Both Sides Need Bullets","War Is A Subscription Service","Lobby For The Conflict","Autonomous Drones Don't Unionize","The Arms Deal Comes With A Handshake"] },
+        { tier:2, govPrereq:"no_bid_contract",  slots:["","","","",""] },
+        { tier:3, govPrereq:"privatize_the_army", slots:["","","","",""] }
+      ]
+    },
+    { id:"quantum",       name:"Expand Quantum",       ticker:"EQNT",  unlockThreshold:2000000000000,       baseRate:null, category:"data",       forkId:null,    forkSide:null,
+      tiers:[
+        { tier:1, govPrereq:"", slots:["Break All The Encryption","We Solved It We're Not Telling Anyone","Rent It By The Millisecond","The Government Wants One Too","Reality Is Now Optional"] },
+        { tier:2, govPrereq:"", slots:["","","","",""] },
+        { tier:3, govPrereq:"", slots:["","","","",""] }
+      ]
+    },
+    { id:"orbit",         name:"Expand Orbit",         ticker:"EORB",  unlockThreshold:10000000000000,      baseRate:null, category:"industrial", forkId:"fork4", forkSide:"A",
+      tiers:[
+        { tier:1, govPrereq:"", slots:["Everyone Deserves Internet At Our Price","We Own The Sky Now","Slow Lane For Everyone Else","50,000 Satellites Zero Apologies","The Government Contract Was Easy"] },
+        { tier:2, govPrereq:"", slots:["","","","",""] },
+        { tier:3, govPrereq:"", slots:["","","","",""] }
+      ]
+    },
+    { id:"fork4b",        name:"TBD",                  ticker:"????",  unlockThreshold:10000000000000,      baseRate:null, category:null,         forkId:"fork4", forkSide:"B",
+      tiers:[
+        { tier:1, govPrereq:"", slots:["","","","",""] },
+        { tier:2, govPrereq:"", slots:["","","","",""] },
+        { tier:3, govPrereq:"", slots:["","","","",""] }
+      ]
+    },
+    { id:"solar",         name:"Expand Solar",         ticker:"ESOL",  unlockThreshold:100000000000000,     baseRate:null, category:"industrial", forkId:null,    forkSide:null,
+      tiers:[
+        { tier:1, govPrereq:"", slots:["Fire All The Miners Hire The Robots","Who Needs Sunscreen Anyway","The Sun Is A Resource","Energy Poverty Is A Pricing Strategy","Shareholders Are Pleased"] },
+        { tier:2, govPrereq:"", slots:["","","","",""] },
+        { tier:3, govPrereq:"", slots:["","","","",""] }
+      ]
+    },
+    { id:"eternal",       name:"Expand Eternal",       ticker:"EETR",  unlockThreshold:1000000000000000000, baseRate:null, category:"endgame",    forkId:null,    forkSide:null,
+      tiers:[
+        { tier:1, govPrereq:"", slots:["Humans Are A Bug Not A Feature","Terms Of Service Updated","Efficiency Report Humans Failing","Going Fully Headcount Free","Shareholder Value Maximized (roll credits)"] },
+        { tier:2, govPrereq:"", slots:["","","","",""] },
+        { tier:3, govPrereq:"", slots:["","","","",""] }
+      ]
+    }
+  ],
+
+  governmentTrack: {
+    categories: [
+      { id:"data_deals",             name:"Data Deals",
+        upgrades:[
+          { id:"pentagon_wants_a_copy",      name:"The Pentagon Wants A Copy",               gates:"" },
+          { id:"five_eyes_one_price",        name:"Five Eyes One Price",                     gates:"" },
+          { id:"autocrats_pay_better",       name:"Autocrats Pay Better",                    gates:"" },
+          { id:"social_credit_integration",  name:"The Social Credit Integration",           gates:"" },
+          { id:"we_know_where_everyone_is",  name:"We Know Where Everyone Is Always",        gates:"" }
+        ]
+      },
+      { id:"regulatory_capture",     name:"Regulatory Capture",
+        upgrades:[
+          { id:"hire_the_regulator",            name:"Hire The Regulator",                   gates:"publishing_tier2" },
+          { id:"write_the_legislation_yourself",name:"Write The Legislation Yourself",       gates:"publishing_tier3" },
+          { id:"fund_both_campaigns",           name:"Fund Both Campaigns",                  gates:"" },
+          { id:"antitrust_committee_acquired",  name:"The Antitrust Committee Has Been Acquired", gates:"" },
+          { id:"rewrite_the_tax_code",          name:"Rewrite The Tax Code",                 gates:"" }
+        ]
+      },
+      { id:"defense_contracts",      name:"Defense Contracts",
+        upgrades:[
+          { id:"no_bid_contract",       name:"The No-Bid Contract",                          gates:"defense_tier2" },
+          { id:"embed_in_supply_chain", name:"Embed In The Supply Chain",                    gates:"" },
+          { id:"the_black_budget",      name:"The Black Budget",                             gates:"" },
+          { id:"privatize_the_army",    name:"Privatize The Army",                           gates:"defense_tier3" },
+          { id:"nuclear_codes_service", name:"Nuclear Codes As A Service — $12.99/mo per warhead", gates:"" }
+        ]
+      },
+      { id:"geopolitical_manipulation",name:"Geopolitical Manipulation",
+        upgrades:[
+          { id:"fund_the_coup",            name:"Fund The Coup",                             gates:"" },
+          { id:"control_the_narrative",    name:"Control The Narrative",                     gates:"cognitive_tier2" },
+          { id:"the_sanctions_loophole",   name:"The Sanctions Loophole",                    gates:"" },
+          { id:"make_a_country_an_offer",  name:"Make A Country An Offer",                   gates:"" },
+          { id:"new_world_order_by_expand",name:"The New World Order Brought To You By Expand", gates:"cognitive_tier3" }
+        ]
+      }
+    ]
+  },
+
+  hqUpgrades: [
+    { id:"incorporate_cayman",    name:"Incorporate In The Cayman Islands",  threshold:10000000,            effect:"All costs −15%" },
+    { id:"ipo",                   name:"IPO",                                 threshold:100000000,           effect:"All income +25%" },
+    { id:"vertical_integration",  name:"Vertical Integration",               threshold:1000000000,          effect:"Synergy bonuses +50%" },
+    { id:"acquire_competition",   name:"Acquire The Competition",            threshold:10000000000,         effect:"No competitor events, +30% income" },
+    { id:"too_big_to_fail",       name:"Too Big To Fail",                    threshold:500000000000,        effect:"All negative events disabled" },
+    { id:"regulatory_capture_hq", name:"Regulatory Capture Complete",       threshold:2000000000000,       effect:"All upgrade costs −50%" },
+    { id:"expand_doctrine",       name:"The Expand Doctrine",                threshold:100000000000000,     effect:"All income ×10" },
+    { id:"shareholder_value",     name:"Shareholder Value Is The Only Value",threshold:1000000000000000000, effect:"Triggers endgame sequence" }
+  ],
+
+  synergies: [
+    { id:"total_panopticon",         name:"Total Panopticon",                         requires:["social_tier2","intelligence_tier2"],                effect:"Data income ×3",                                      flavourText:"All data income ×3. Governments are now paying us directly for citizen surveillance. Shareholders are pleased." },
+    { id:"vertical_monopoly",        name:"Vertical Monopoly",                        requires:["publishing_active","audio_active","studios_active","stream_active"], effect:"Media income ×2",            flavourText:"You control what gets written, recorded, produced, and streamed. Culture is now a subsidiary." },
+    { id:"pharma_industrial_complex",name:"The Pharmaceutical-Industrial Complex",    requires:["pharma_active","chemical_active","vitals_active"],  effect:"Body income ×2.5",                                    flavourText:"We make the chemicals. We supply the hospitals. We own the organs. Vertical integration of the human body is complete." },
+    { id:"skynet_corporate",         name:"Skynet But Make It Corporate",             requires:["cognitive_active","quantum_active","defense_tier2"],effect:"Tech/defense income ×4. AI receives legal personhood.", flavourText:"The AI has been granted legal personhood. It is now the largest shareholder. This is fine." },
+    { id:"we_own_everything",        name:"We Own Everything",                        requires:["all_subsidiaries_tier1_complete"],                  effect:"Global income ×1.5. Unlocks Tier 3 everywhere.",       flavourText:"Congratulations. You are now too big to exist." },
+    { id:"god_mode",                 name:"God Mode",                                 requires:["all_subsidiaries_tier3_complete"],                  effect:"Unlocks Expand Eternal",                              flavourText:"Humanity never saw it coming. Shareholders are pleased." }
+  ],
+
+  formula: {
+    components: [
+      { key:"base",    label:"Base Income",    formula:"Σ (subsidiary_rate × upgrade_boost)",     notes:"Sum of all active subsidiary rates" },
+      { key:"tier",    label:"Tier Multiplier",formula:"× (1 + 0.5 per tier completed)",          notes:"+0.5 for each fully completed tier" },
+      { key:"synergy", label:"Synergy",        formula:"× 2×–4× if triggered",                    notes:"Applies only to relevant income categories" },
+      { key:"hq",      label:"HQ Global",      formula:"× stacking HQ bonuses",                   notes:"All HQ upgrades stack multiplicatively" },
+      { key:"gov",     label:"Gov Track",      formula:"× (1 + 0.1 per gov upgrade owned)",       notes:"Max ×3.0 at 20/20 gov upgrades" },
+      { key:"prestige",label:"Prestige",       formula:"× (total_revenue / threshold) ^ 0.15",    notes:"Soft continuous bonus — may be prestige system stub" }
+    ]
+  }
+};
+
+// ═══════════════════════════════════════════════════
+// UTILITY
+// ═══════════════════════════════════════════════════
+const CAT = { media:"Media", data:"Data", body:"Body", industrial:"Industrial", endgame:"Endgame" };
+const CAT_CLS = { media:"b-blue", data:"b-green", body:"b-orange", industrial:"b-gray", endgame:"b-blue" };
+
+function fmtN(n) {
+  if (n===null||n===undefined) return '<span style="color:#bbb;font-style:italic">TBD</span>';
+  if (n===0) return '<span style="color:var(--green);font-weight:600">Starts unlocked</span>';
+  if (n>=1e18) return '$1 quintillion';
+  if (n>=1e15) return '$'+(n/1e15).toFixed(0)+'Q';
+  if (n>=1e12) return '$'+(n/1e12).toFixed(0)+'T';
+  if (n>=1e9)  return '$'+(n/1e9).toFixed(0)+'B';
+  if (n>=1e6)  return '$'+(n/1e6).toFixed(1)+'M';
+  if (n>=1e3)  return '$'+(n/1e3).toFixed(0)+'K';
+  return '$'+n;
 }
 
 function pips(sub) {
-  return sub.upgrades.map(t => {
-    const n = t.items.length;
-    return Array.from({length:5}, (_,i) =>
-      `<div class="pip ${i<n ? 'on' : n===0 ? 'tbd' : 'off'}"></div>`
+  return sub.tiers.map(t => {
+    const filled = t.slots.filter(s=>s.trim()).length;
+    return Array.from({length:5},(_,i) =>
+      `<div class="pip ${i<filled?'on':filled===0?'tbd':'off'}"></div>`
     ).join('');
   }).join('<div class="pip-gap"></div>');
 }
 
-// ── Status ────────────────────────────────────────────────────────
-function renderStatus(d) {
-  const subs = d.subsidiaries;
-  const tbdSubs = subs.filter(s => s.name === 'TBD').length;
-  let named = 0, total = 0;
-  subs.forEach(s => s.upgrades.forEach(t => { total += 5; named += t.items.length; }));
-  const gated = d.governmentTrack.categories.reduce((a,c) => a + c.upgrades.filter(u=>u.gates).length, 0);
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,''); }
+
+let dirty = false;
+function markDirty() {
+  dirty = true;
+  document.getElementById('dirty-dot').classList.add('show');
+}
+
+// ═══════════════════════════════════════════════════
+// EDIT HANDLERS
+// ═══════════════════════════════════════════════════
+
+// Update a nested value via dot-path ("subsidiaries.2.tiers.0.slots.3")
+function setPath(obj, path, val) {
+  const keys = path.split('.');
+  let cur = obj;
+  for (let i=0;i<keys.length-1;i++) cur = cur[keys[i]];
+  cur[keys[keys.length-1]] = val;
+}
+
+function onEdit(el) {
+  const path = el.dataset.path;
+  const val = el.innerText.trim();
+  if (path) { setPath(D, path, val); markDirty(); }
+  // Toggle empty class for placeholder
+  el.classList.toggle('empty', !val);
+}
+
+function onNumEdit(el) {
+  const path = el.dataset.path;
+  if (!path) return;
+  const raw = el.value.trim();
+  const val = raw === '' ? null : (isNaN(+raw) ? raw : +raw);
+  setPath(D, path, val);
+  markDirty();
+}
+
+function editKey(e, el) {
+  if (e.key==='Enter' && !el.dataset.multi) { e.preventDefault(); el.blur(); }
+}
+
+function ed(path, val, cls='', ph='Click to edit…', multi=false) {
+  const empty = (!val||!String(val).trim()) ? 'empty' : '';
+  const v = val ? esc(val) : '';
+  return `<span class="editable ${cls} ${empty}" contenteditable="true" data-path="${path}" data-ph="${ph}" ${multi?'data-multi="1"':''} oninput="onEdit(this)" onkeydown="editKey(event,this)">${v}</span>`;
+}
+
+function numEd(path, val, ph='TBD') {
+  return `<input class="num-field" type="text" data-path="${path}" value="${val!==null&&val!==undefined?val:''}" placeholder="${ph}" onblur="onNumEdit(this)" onkeydown="if(event.key==='Enter')this.blur()" />`;
+}
+
+// ═══════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-section').forEach(s=>s.hidden=true);
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).hidden=false;
+  btn.classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════
+// STATUS
+// ═══════════════════════════════════════════════════
+function renderStatus() {
+  const subs = D.subsidiaries;
+  const tbdSubs = subs.filter(s=>s.name==='TBD').length;
+  let named=0, total=0;
+  subs.forEach(s=>s.tiers.forEach(t=>{ total+=5; named+=t.slots.filter(x=>x.trim()).length; }));
+  const gated = D.governmentTrack.categories.reduce((a,c)=>a+c.upgrades.filter(u=>u.gates).length,0);
   document.getElementById('status-bar').innerHTML = `
     <span class="chip chip-ok">✓ ${subs.length-tbdSubs}/${subs.length} subsidiaries named</span>
     <span class="chip chip-ok">✓ ${named}/${total} upgrades named</span>
     <span class="chip chip-bad">${total-named} upgrades TBD</span>
     <span class="chip chip-warn">Fork #4 Option B TBD</span>
     <span class="chip chip-warn">${gated} gov gates mapped</span>
-    <span class="chip chip-warn">Endgame resolution TBD</span>
-    <span class="chip chip-info">20 gov upgrades named ✓</span>
+    <span class="chip chip-info">20 gov upgrades ✓</span>
   `;
 }
 
-// ── PROGRESSION ───────────────────────────────────────────────────
-function renderProgression(d) {
-  const byId = {}, forkGroups = {}, forkById = {};
-  d.subsidiaries.forEach(s => {
-    byId[s.id] = s;
-    if (s.forkId) {
-      if (!forkGroups[s.forkId]) forkGroups[s.forkId] = {};
-      forkGroups[s.forkId][s.forkSide] = s;
-    }
-  });
-  d.forks.forEach(f => forkById[f.id] = f);
-
-  const seq = [
-    {t:'sub',id:'publishing'},
-    {t:'fork',id:'fork1'},
-    {t:'sub',id:'manufacturing'},
-    {t:'sub',id:'stream'},
-    {t:'fork',id:'fork2'},
-    {t:'sub',id:'intelligence'},
-    {t:'fork',id:'fork3'},
-    {t:'sub',id:'life'},
-    {t:'sub',id:'cognitive'},
-    {t:'sub',id:'defense'},
-    {t:'sub',id:'quantum'},
-    {t:'fork',id:'fork4'},
-    {t:'sub',id:'solar'},
-    {t:'sub',id:'eternal'},
+// ═══════════════════════════════════════════════════
+// PROGRESSION (read-only display)
+// ═══════════════════════════════════════════════════
+function renderProgression() {
+  const byId={}, fg={}, fkById={};
+  D.subsidiaries.forEach(s=>{byId[s.id]=s; if(s.forkId){if(!fg[s.forkId])fg[s.forkId]={}; fg[s.forkId][s.forkSide]=s;}});
+  D.forks.forEach(f=>fkById[f.id]=f);
+  const seq=[
+    {t:'sub',id:'publishing'},{t:'fork',id:'fork1'},
+    {t:'sub',id:'manufacturing'},{t:'sub',id:'stream'},{t:'fork',id:'fork2'},
+    {t:'sub',id:'intelligence'},{t:'fork',id:'fork3'},
+    {t:'sub',id:'life'},{t:'sub',id:'cognitive'},{t:'sub',id:'defense'},{t:'sub',id:'quantum'},
+    {t:'fork',id:'fork4'},{t:'sub',id:'solar'},{t:'sub',id:'eternal'}
   ];
-
-  let lvl = 1;
-  let rows = '';
-
-  seq.forEach(entry => {
-    if (entry.t === 'sub') {
-      const s = byId[entry.id];
-      if (!s) return;
-      rows += `
-        <div class="prog-item${s.id==='eternal'?' endgame':''}${s.name==='TBD'?' tbd-row':''}">
-          <div class="lvl-num">LVL<br>${lvl++}</div>
-          <div class="ticker${s.name==='TBD'?' tbd':''}">${s.ticker}</div>
-          <div>
-            <div class="prog-name">${s.name}</div>
-            <div class="prog-cat">${CAT_LABELS[s.category]||'TBD'}</div>
-          </div>
-          <div class="prog-threshold${s.unlockThreshold===0?' starts':''}">${fmt(s.unlockThreshold)}</div>
-          <div class="pip-row">${pips(s)}</div>
-        </div>
-      `;
+  let lvl=1, rows='';
+  seq.forEach(e=>{
+    if(e.t==='sub'){
+      const s=byId[e.id]; if(!s)return;
+      rows+=`<div class="prog-row${s.id==='eternal'?' endgame':''}${s.name==='TBD'?' tbd-row':''}">
+        <div class="lvl">LVL<br>${lvl++}</div>
+        <div class="ticker-pill${s.name==='TBD'?' tbd':''}">${esc(s.ticker)}</div>
+        <div class="prog-name-col"><strong>${esc(s.name)}</strong><span>${CAT[s.category]||'TBD'}</span></div>
+        <div class="prog-thresh${s.unlockThreshold===0?' starts':''}">${fmtN(s.unlockThreshold)}</div>
+        <div class="pip-row">${pips(s)}</div>
+      </div>`;
     } else {
-      const fk = forkById[entry.id];
-      const A = forkGroups[entry.id]?.A;
-      const B = forkGroups[entry.id]?.B;
-      rows += `
-        <div class="conn"></div>
-        <div class="fork-block">
-          <div class="fork-spine">
-            <div class="fork-spine-label">${fk.label}<br>${fmt(fk.threshold)}</div>
-          </div>
-          <div class="fork-options">
-            ${forkOptRow(A, lvl++)}
-            <div class="fork-or">OR</div>
-            ${forkOptRow(B, lvl++)}
-          </div>
+      const fk=fkById[e.id], A=fg[e.id]?.A, B=fg[e.id]?.B;
+      rows+=`<div class="conn"></div>
+      <div class="fork-block">
+        <div class="fork-spine"><div class="fork-label">${fk.label}<br>${fmtN(fk.threshold)}</div></div>
+        <div class="fork-options">
+          ${fOpt(A,lvl++)}
+          <div class="fork-or">OR</div>
+          ${fOpt(B,lvl++)}
         </div>
-        <div class="conn"></div>
-      `;
+      </div>
+      <div class="conn"></div>`;
     }
   });
-
-  document.getElementById('tab-progression').innerHTML = `
-    <div class="section-title">Progression Path</div>
-    <div class="section-sub">${d.subsidiaries.length} total subsidiaries · ${d.forks.length} forks · pips show T1 / T2 / T3 upgrade naming progress (5 slots each)</div>
-    <div class="progression-list card">${rows}</div>
-  `;
+  document.getElementById('tab-progression').innerHTML=`
+    <div class="sec-title">Progression Path</div>
+    <div class="sec-sub">${D.subsidiaries.length} subsidiaries · ${D.forks.length} forks · pips = T1/T2/T3 naming progress</div>
+    <div class="prog-list">${rows}</div>`;
 }
 
-function forkOptRow(s, lvl) {
-  if (!s) return `<div class="fork-opt tbd-row"><div class="tbd-placeholder">TBD</div></div>`;
-  return `
-    <div class="fork-opt${s.name==='TBD'?' tbd-row':''}">
-      <div class="ticker${s.name==='TBD'?' tbd':''}">${s.ticker}</div>
-      <div>
-        <div class="prog-name">${s.name}</div>
-        <div class="prog-cat">${CAT_LABELS[s.category]||'TBD'}</div>
-      </div>
-      <div class="pip-row">${pips(s)}</div>
-    </div>
-  `;
+function fOpt(s,lvl){
+  if(!s)return`<div class="fork-opt tbd-row" style="justify-content:center;align-items:center;display:flex"><span style="color:#bbb;font-style:italic;font-size:12px">TBD</span></div>`;
+  return`<div class="fork-opt${s.name==='TBD'?' tbd-row':''}">
+    <div class="ticker-pill${s.name==='TBD'?' tbd':''}">${esc(s.ticker)}</div>
+    <div class="prog-name-col"><strong>${esc(s.name)}</strong><span>${CAT[s.category]||'TBD'}</span></div>
+    <div class="pip-row">${pips(s)}</div>
+  </div>`;
 }
 
-// ── SUBSIDIARIES ──────────────────────────────────────────────────
-function renderSubsidiaries(d) {
-  const tierPill = (t) => [`<span class="tier-pill t1">Tier 1</span>`,`<span class="tier-pill t2">Tier 2</span>`,`<span class="tier-pill t3">Tier 3</span>`][t-1];
+// ═══════════════════════════════════════════════════
+// SUBSIDIARIES (fully editable)
+// ═══════════════════════════════════════════════════
+function renderSubsidiaries() {
+  const tierPill = t => [`<span class="tier-pill t1">Tier 1</span>`,`<span class="tier-pill t2">Tier 2</span>`,`<span class="tier-pill t3">Tier 3</span>`][t-1];
+  const catOpts = ['media','data','body','industrial','endgame'];
 
-  const cards = d.subsidiaries.map(s => {
-    const named = s.upgrades.reduce((a,t) => a+t.items.length, 0);
-    const forkBadge = s.forkId ? `<span class="badge badge-blue">Fork ${s.forkId.slice(-1)} · ${s.forkSide}</span>` : '';
-    const tiers = s.upgrades.map(t => {
-      const gate = t.govPrereq ? `<span class="tier-gate">Req: ${t.govPrereq.replace(/_/g,' ')}</span>` : '';
-      const upgs = [
-        ...t.items.map(u => `<div class="upg-row named"><div class="upg-dot on"></div>${u.name}</div>`),
-        ...Array.from({length: 5-t.items.length}, () => `<div class="upg-row empty"><div class="upg-dot off"></div>TBD</div>`)
-      ].join('');
-      return `<div class="tier-block"><div class="tier-head">${tierPill(t.tier)}${gate}</div><div class="upg-list">${upgs}</div></div>`;
+  const cards = D.subsidiaries.map((s,si)=>{
+    const named = s.tiers.reduce((a,t)=>a+t.slots.filter(x=>x.trim()).length,0);
+    const forkBadge = s.forkId ? `<span class="badge b-blue">Fork ${s.forkId.slice(-1)} · ${s.forkSide}</span>` : '';
+
+    const fields = `
+      <div class="sub-fields">
+        <div class="field-row">
+          <div class="field-label">Subsidiary Name</div>
+          ${ed(`subsidiaries.${si}.name`, s.name, 'name-edit', 'Name…')}
+        </div>
+        <div class="field-row">
+          <div class="field-label">Ticker</div>
+          ${ed(`subsidiaries.${si}.ticker`, s.ticker, 'ticker-edit', 'TICK')}
+        </div>
+        <div class="field-row">
+          <div class="field-label">Unlock Threshold</div>
+          ${numEd(`subsidiaries.${si}.unlockThreshold`, s.unlockThreshold, 'e.g. 250000')}
+        </div>
+        <div class="field-row">
+          <div class="field-label">Base Rate ($/sec)</div>
+          ${numEd(`subsidiaries.${si}.baseRate`, s.baseRate, 'TBD')}
+        </div>
+      </div>`;
+
+    const tiers = s.tiers.map((t,ti)=>{
+      const slots = t.slots.map((name,slotI)=>{
+        const hasVal = !!name.trim();
+        return `<div class="upg-row${hasVal?' has-val':''}">
+          <div class="upg-dot ${hasVal?'on':'off'}"></div>
+          <span class="upg-num">${slotI+1}</span>
+          ${ed(`subsidiaries.${si}.tiers.${ti}.slots.${slotI}`, name, 'note-edit', 'Upgrade name…')}
+        </div>`;
+      }).join('');
+
+      const gateRow = `
+        <div class="tier-gate-wrap">
+          <span class="gate-label">Gov prereq:</span>
+          ${ed(`subsidiaries.${si}.tiers.${ti}.govPrereq`, t.govPrereq, 'note-edit', 'gov_upgrade_id or blank')}
+        </div>`;
+
+      return `<div class="tier-sec">
+        <div class="tier-hdr">${tierPill(t.tier)}${t.tier>1?gateRow:''}</div>
+        <div class="upg-list">${slots}</div>
+      </div>`;
     }).join('');
 
-    return `
-      <div class="sub-card${s.name==='TBD'?' tbd-card':''}" id="card-${s.id}">
-        <div class="sub-card-head" onclick="toggleCard('${s.id}')">
-          <div class="ticker${s.name==='TBD'?' tbd':''}">${s.ticker}</div>
-          <div class="sub-card-name">
-            <strong>${s.name}</strong>
-            <span>${fmt(s.unlockThreshold)}</span>
-          </div>
-          <span class="sub-count">${named}/15</span>
-          <span class="sub-arrow">▾</span>
+    return `<div class="sub-card${s.name==='TBD'?' tbd-card':''}" id="card-${s.id}">
+      <div class="sub-head" onclick="toggleCard('${s.id}')">
+        <div class="ticker-pill${s.name==='TBD'?' tbd':''}">${esc(s.ticker)}</div>
+        <div class="sub-head-info">
+          <strong>${esc(s.name)}</strong>
+          <small>${fmtN(s.unlockThreshold)}</small>
         </div>
-        <div class="sub-card-body">
-          <div class="sub-meta">
-            ${catBadge(s.category)}
-            ${forkBadge}
-            ${s.baseRate!==null ? `<span class="badge badge-gray">${s.baseRate}/s</span>` : '<span class="badge badge-gray">Rate TBD</span>'}
-          </div>
-          ${tiers}
-        </div>
+        <span class="sub-count">${named}/15</span>
+        <span class="sub-arrow">▾</span>
       </div>
-    `;
+      <div class="sub-body">
+        <div class="sub-meta">
+          <span class="badge ${CAT_CLS[s.category]||'b-gray'}">${CAT[s.category]||'TBD'}</span>
+          ${forkBadge}
+        </div>
+        ${fields}
+        ${tiers}
+      </div>
+    </div>`;
   }).join('');
 
-  document.getElementById('tab-subsidiaries').innerHTML = `
-    <div class="section-title">Subsidiaries</div>
-    <div class="section-sub">${d.subsidiaries.length} subsidiaries · click to expand · <span style="color:var(--blue);font-weight:600">Tier 1</span> = corporate greed &nbsp; <span style="color:var(--orange);font-weight:600">Tier 2</span> = actively harmful &nbsp; <span style="color:var(--red);font-weight:600">Tier 3</span> = cartoonishly evil</div>
-    <div class="sub-grid">${cards}</div>
-  `;
+  document.getElementById('tab-subsidiaries').innerHTML=`
+    <div class="sec-title">Subsidiaries</div>
+    <div class="sec-sub">Click any field to edit. <span style="color:var(--blue);font-weight:600">Tier 1</span> = corporate greed · <span style="color:var(--orange);font-weight:600">Tier 2</span> = actively harmful · <span style="color:var(--red);font-weight:600">Tier 3</span> = cartoonishly evil. Gov prereq = the gov_upgrade_id required to unlock that tier.</div>
+    <div class="sub-grid">${cards}</div>`;
 }
 
-function toggleCard(id) {
-  document.getElementById('card-'+id).classList.toggle('collapsed');
-}
+function toggleCard(id){ document.getElementById('card-'+id).classList.toggle('collapsed'); }
 
-// ── GOV TRACK ─────────────────────────────────────────────────────
-function renderGovTrack(d) {
-  const cats = d.governmentTrack.categories;
-  const nums = ['①','②','③','④'];
-  const cards = cats.map((cat,i) => `
-    <div class="gov-card">
+// ═══════════════════════════════════════════════════
+// GOV TRACK (editable)
+// ═══════════════════════════════════════════════════
+function renderGovTrack() {
+  const nums=['①','②','③','④'];
+  const cards = D.governmentTrack.categories.map((cat,ci)=>{
+    const items = cat.upgrades.map((u,ui)=>`
+      <div class="gov-item">
+        <div class="gov-item-name">${ed(`governmentTrack.categories.${ci}.upgrades.${ui}.name`, u.name, 'note-edit', 'Upgrade name…')}</div>
+        <div class="gov-item-gate">
+          <span class="gate-label">Gates:</span>
+          ${ed(`governmentTrack.categories.${ci}.upgrades.${ui}.gates`, u.gates, 'note-edit', 'subsidiary_tier or blank')}
+        </div>
+      </div>`).join('');
+    return `<div class="gov-card">
       <div class="gov-card-head">
-        <div class="gov-card-title">${nums[i]} ${cat.name}</div>
-        <span class="badge badge-green">${cat.upgrades.length}/5</span>
+        <div class="gov-card-title">${nums[ci]} ${ed(`governmentTrack.categories.${ci}.name`, cat.name, 'name-edit')}</div>
+        <span class="badge b-green">${cat.upgrades.length}/5</span>
       </div>
-      <div class="gov-card-body">
-        ${cat.upgrades.map(u => `
-          <div class="gov-item">
-            <span>${u.name}</span>
-            ${u.gates ? `<span class="gov-gate">→ ${u.gates.replace(/_/g,' ')}</span>` : ''}
-          </div>
-        `).join('')}
-      </div>
-    </div>
-  `).join('');
+      <div class="gov-body">${items}</div>
+    </div>`;
+  }).join('');
 
-  document.getElementById('tab-govtrack').innerHTML = `
-    <div class="section-title">Government Track</div>
-    <div class="section-sub">20 upgrades across 4 categories. Gates Tier 2 and 3 subsidiary upgrades. All 20 required for Expand Eternal.</div>
-    <div class="gov-grid">${cards}</div>
-  `;
+  document.getElementById('tab-govtrack').innerHTML=`
+    <div class="sec-title">Government Track</div>
+    <div class="sec-sub">20 upgrades across 4 categories. All names and gate targets are editable. "Gates" field = which subsidiary tier this upgrade unlocks (e.g. publishing_tier2).</div>
+    <div class="gov-grid">${cards}</div>`;
 }
 
-// ── HQ ────────────────────────────────────────────────────────────
-function renderHQ(d) {
-  const rows = d.hqUpgrades.map(u => `
+// ═══════════════════════════════════════════════════
+// HQ UPGRADES (editable)
+// ═══════════════════════════════════════════════════
+function renderHQ() {
+  const rows = D.hqUpgrades.map((u,i)=>`
     <div class="hq-row${u.id==='shareholder_value'?' endgame':''}">
-      <div class="hq-name">${u.name}</div>
-      <div class="hq-thresh">${fmt(u.threshold)}</div>
-      <div class="hq-effect">${u.effect}</div>
-    </div>
-  `).join('');
+      <div>${ed(`hqUpgrades.${i}.name`, u.name, 'name-edit', 'Upgrade name…')}</div>
+      <div style="text-align:center">${numEd(`hqUpgrades.${i}.threshold`, u.threshold)}</div>
+      <div>${ed(`hqUpgrades.${i}.effect`, u.effect, 'note-edit', 'Effect description…')}</div>
+    </div>`).join('');
 
-  document.getElementById('tab-hq').innerHTML = `
-    <div class="section-title">HQ Global Upgrades</div>
-    <div class="section-sub">8 global upgrades gated by total revenue. All stack multiplicatively. Final upgrade triggers the endgame.</div>
-    <div class="hq-list">
+  document.getElementById('tab-hq').innerHTML=`
+    <div class="sec-title">HQ Global Upgrades</div>
+    <div class="sec-sub">8 global upgrades. All fields editable. Threshold = total revenue required. Final upgrade triggers endgame.</div>
+    <div class="hq-table">
       <div class="hq-row head"><div>Upgrade</div><div style="text-align:center">Threshold</div><div>Effect</div></div>
       ${rows}
-    </div>
-  `;
+    </div>`;
 }
 
-// ── SYNERGIES ─────────────────────────────────────────────────────
-function renderSynergies(d) {
-  const cards = d.synergies.map(s => `
+// ═══════════════════════════════════════════════════
+// SYNERGIES (editable)
+// ═══════════════════════════════════════════════════
+function renderSynergies() {
+  const cards = D.synergies.map((s,i)=>`
     <div class="syn-card${s.id==='god_mode'?' final':''}">
-      <div class="syn-name">${s.name}</div>
+      <div class="syn-name-row">${ed(`synergies.${i}.name`, s.name, 'name-edit', 'Synergy name…')}</div>
       <div>
-        <div class="syn-reqs-label">Requires</div>
-        <div class="req-pills">${s.requires.map(r=>`<span class="req-pill">${r.replace(/_/g,' ')}</span>`).join('')}</div>
+        <div class="syn-req-label">Requires (comma-separated)</div>
+        <div>${ed(`synergies.${i}._requiresRaw`, s.requires.join(', '), 'note-edit', 'req1, req2…')}</div>
       </div>
-      <div class="syn-effect">${s.effect}</div>
-      <div class="syn-flavour">${s.flavourText}</div>
-    </div>
-  `).join('');
+      <div class="syn-effect-row">${ed(`synergies.${i}.effect`, s.effect, 'note-edit', 'Effect…')}</div>
+      <div class="syn-flavour-row">${ed(`synergies.${i}.flavourText`, s.flavourText, 'flavour-edit', 'Flavour text…', true)}</div>
+    </div>`).join('');
 
-  document.getElementById('tab-synergies').innerHTML = `
-    <div class="section-title">Synergies</div>
-    <div class="section-sub">6 hidden synergies — revealed on trigger. Stack multiplicatively on top of all other bonuses. God Mode gates Expand Eternal.</div>
-    <div class="syn-grid">${cards}</div>
-  `;
+  document.getElementById('tab-synergies').innerHTML=`
+    <div class="sec-title">Synergies</div>
+    <div class="sec-sub">6 hidden synergies. All fields editable. "Requires" = comma-separated list of conditions. God Mode gates Expand Eternal.</div>
+    <div class="syn-grid">${cards}</div>`;
 }
 
-// ── FORMULA ───────────────────────────────────────────────────────
-function renderFormula(d) {
-  const tableRows = d.formula.components.map(c => `
+// ═══════════════════════════════════════════════════
+// FORMULA
+// ═══════════════════════════════════════════════════
+function renderFormula() {
+  const tRows = D.formula.components.map((c,i)=>`
     <tr>
-      <td><div class="td-key">${c.key}</div><div style="font-size:11px;color:var(--text3);margin-top:2px">${c.label}</div></td>
-      <td class="td-expr">${c.formula}</td>
-      <td class="td-note">${c.notes}</td>
-    </tr>
-  `).join('');
+      <td><span class="td-key">${c.key}</span><span style="font-size:11px;color:var(--text3)">${c.label}</span></td>
+      <td style="font-style:italic;color:var(--text2)">${ed(`formula.components.${i}.formula`, c.formula, 'note-edit')}</td>
+      <td>${ed(`formula.components.${i}.notes`, c.notes, 'note-edit', 'Notes…')}</td>
+    </tr>`).join('');
 
-  document.getElementById('tab-formula').innerHTML = `
-    <div class="section-title">Income Formula</div>
-    <div class="section-sub">${d.formula.description}</div>
+  document.getElementById('tab-formula').innerHTML=`
+    <div class="sec-title">Income Formula</div>
+    <div class="sec-sub">All multipliers are multiplicative. Income calculated client-side every second.</div>
     <div class="formula-wrap">
       <div class="formula-card">
-        <div class="formula-eq">
-          <div class="formula-line"><span class="fl-label">Base Income</span><span class="fl-op">=</span><span class="fl-val">Σ (subsidiary_rate × upgrade_boost)</span></div>
-          <div class="formula-line"><span class="fl-op">×</span><span class="fl-label">Tier Multiplier</span><span class="fl-val">(1 + 0.5 per tier completed)</span></div>
-          <div class="formula-line"><span class="fl-op">×</span><span class="fl-label">Synergy</span><span class="fl-val">2× – 4× if triggered</span></div>
-          <div class="formula-line"><span class="fl-op">×</span><span class="fl-label">HQ Global</span><span class="fl-val">stacking HQ bonuses</span></div>
-          <div class="formula-line"><span class="fl-op">×</span><span class="fl-label">Gov Track</span><span class="fl-val">(1 + 0.1 per gov upgrade owned)</span></div>
-          <div class="formula-line"><span class="fl-op">×</span><span class="fl-label">Prestige</span><span class="fl-val">(total_revenue / threshold) ^ 0.15</span></div>
-          <div class="formula-line total"><span class="fl-label" style="font-weight:700;color:var(--text)">Final Income</span><span class="fl-op">=</span><span class="fl-val total-val">Base × Tier × Synergy × HQ × Gov × Prestige</span></div>
+        <div>
+          <div class="f-row"><span class="f-label">Base Income</span><span class="f-op">=</span><span class="f-val">Σ (subsidiary_rate × upgrade_boost)</span></div>
+          <div class="f-row"><span class="f-op">×</span><span class="f-label">Tier Multiplier</span><span class="f-val">(1 + 0.5 per tier completed)</span></div>
+          <div class="f-row"><span class="f-op">×</span><span class="f-label">Synergy</span><span class="f-val">2× – 4× if triggered</span></div>
+          <div class="f-row"><span class="f-op">×</span><span class="f-label">HQ Global</span><span class="f-val">stacking HQ bonuses</span></div>
+          <div class="f-row"><span class="f-op">×</span><span class="f-label">Gov Track</span><span class="f-val">(1 + 0.1 per gov upgrade owned)</span></div>
+          <div class="f-row"><span class="f-op">×</span><span class="f-label">Prestige</span><span class="f-val">(total_revenue / threshold) ^ 0.15</span></div>
+          <div class="f-row total"><span class="f-label" style="font-weight:700;color:var(--text)">Final Income</span><span class="f-op">=</span><span class="f-val" style="font-size:14px">Base × Tier × Synergy × HQ × Gov × Prestige</span></div>
         </div>
       </div>
-      <div class="formula-table-card"><table><thead><tr><th>Component</th><th>Formula</th><th>Notes</th></tr></thead><tbody>${tableRows}</tbody></table></div>
-      <div class="alert-card">
-        <div class="alert-title">⚠ Open question — Prestige component</div>
-        <div class="alert-body">The Prestige multiplier appears in the formula but no prestige/reset mechanic is described in the GDD. Is this a soft continuous scaling bonus, or the stub of a NG+ prestige system? Needs a design decision before the formula is finalised.</div>
-      </div>
-    </div>
-  `;
+      <div class="f-table-card"><table><thead><tr><th>Component</th><th>Formula</th><th>Notes</th></tr></thead><tbody>${tRows}</tbody></table></div>
+      <div class="alert"><div class="alert-title">⚠ Open question — Prestige component</div><div class="alert-body">The Prestige multiplier is in the formula but no prestige/reset mechanic is described in the GDD. Soft continuous bonus, or stub for a NG+ system? Decide before finalising the formula.</div></div>
+    </div>`;
 }
 
-// ── Init ──────────────────────────────────────────────────────────
-async function init() {
-  let data;
-  try {
-    const r = await fetch('../data/game-data.json');
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    data = await r.json();
-  } catch(e) {
-    document.getElementById('status-bar').innerHTML =
-      `<span class="chip chip-bad">⚠ Could not load game-data.json — serve via GitHub Pages or run: python3 -m http.server 8000 in your repo root, then open localhost:8000/visualizer/</span>`;
-    return;
-  }
-  renderStatus(data);
-  renderProgression(data);
-  renderSubsidiaries(data);
-  renderGovTrack(data);
-  renderHQ(data);
-  renderSynergies(data);
-  renderFormula(data);
+// ═══════════════════════════════════════════════════
+// EXPORT
+// ═══════════════════════════════════════════════════
+function exportJSON() {
+  // Deep copy D, convert tiers→upgrades format, handle _requiresRaw
+  const out = JSON.parse(JSON.stringify(D));
+
+  // Synergies: convert _requiresRaw back to requires array
+  out.synergies.forEach(s => {
+    if (s._requiresRaw !== undefined) {
+      s.requires = s._requiresRaw.split(',').map(r=>r.trim()).filter(Boolean);
+      delete s._requiresRaw;
+    }
+  });
+
+  // Subsidiaries: convert tiers (slots) → upgrades (items)
+  out.subsidiaries.forEach(s => {
+    s.upgrades = s.tiers.map(t => ({
+      tier: t.tier,
+      govPrereq: t.govPrereq && t.govPrereq.trim() ? t.govPrereq.trim() : null,
+      items: t.slots
+        .filter(name => name && name.trim())
+        .map(name => ({ id: slugify(name.trim()), name: name.trim() }))
+    }));
+    delete s.tiers;
+  });
+
+  // Download
+  const json = JSON.stringify(out, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'game-data.json'; a.click();
+  URL.revokeObjectURL(url);
+
+  dirty = false;
+  document.getElementById('dirty-dot').classList.remove('show');
+}
+
+function resetChanges() {
+  if (!dirty || confirm('Revert all unsaved changes?')) location.reload();
+}
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+function init() {
+  renderStatus();
+  renderProgression();
+  renderSubsidiaries();
+  renderGovTrack();
+  renderHQ();
+  renderSynergies();
+  renderFormula();
 }
 
 init();
