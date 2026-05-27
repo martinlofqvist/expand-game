@@ -7,6 +7,15 @@
     "notes": "null values = TBD / not yet designed. All upgrade costs, base rates, and effect values need tuning during playtesting."
   },
 
+  "ui": {
+    "startScreen": {
+      "headline": "EXPAND!",
+      "tagline": "You started with a book. Now you own everything. Shareholders are pleased.",
+      "ctaButton": "START GAME",
+      "resumeNote": "Session in progress — resume where you left off"
+    }
+  },
+
   "onboarding": {
     "initialClickValue": 1,
     "internUnlockAfterClicks": 5,

@@ -343,6 +343,14 @@ const CONFIG_REF = doc(db, 'config', 'gameData');
 // ── Default game data (seed / fallback) ───────────────────────────
 const DEFAULT_DATA = {
   meta: { name:"Expand!", version:"0.1.0", lastUpdated:"2026-05-26" },
+  ui: {
+    startScreen: {
+      headline:   "EXPAND!",
+      tagline:    "You started with a book. Now you own everything. Shareholders are pleased.",
+      ctaButton:  "START GAME",
+      resumeNote: "Session in progress — resume where you left off"
+    }
+  },
   onboarding: {
     initialClickValue:1, internUnlockAfterClicks:5, internCost:5,
     internPassiveRate:0.333,
@@ -777,6 +785,17 @@ window.toggleCopySection = function(el) {
 function renderCopy() {
   // Build a flat list of { sectionId, sectionName, key, path, value } entries
   const sections = [];
+
+  // ── Start Screen ──
+  const ss = D.ui?.startScreen ?? {};
+  sections.push({
+    id: 'startscreen', name: 'Start Screen', rows: [
+      { key: 'headline',    path: 'ui.startScreen.headline',   val: ss.headline },
+      { key: 'tagline',     path: 'ui.startScreen.tagline',    val: ss.tagline },
+      { key: 'CTA button',  path: 'ui.startScreen.ctaButton',  val: ss.ctaButton },
+      { key: 'resume note', path: 'ui.startScreen.resumeNote', val: ss.resumeNote },
+    ]
+  });
 
   // ── Onboarding ──
   sections.push({

@@ -26,7 +26,13 @@ async function boot() {
 
   initState();
 
-  // Show resume note if a session exists
+  // Populate start screen copy from game data
+  const ss = getData().ui?.startScreen ?? {};
+  document.getElementById('start-headline').textContent = ss.headline   ?? 'EXPAND!';
+  document.getElementById('start-tagline').textContent  = ss.tagline    ?? '';
+  document.getElementById('start-cta').textContent      = ss.ctaButton  ?? 'START GAME';
+  document.getElementById('start-resume').textContent   = ss.resumeNote ?? '';
+
   if (hasSavedSession()) {
     document.getElementById('start-resume').hidden = false;
   }
