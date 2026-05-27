@@ -212,6 +212,24 @@
     .alert-title { font-size:13px; font-weight:700; color:var(--orange); margin-bottom:5px; }
     .alert-body  { color:var(--text2); line-height:1.6; }
 
+    /* ── Copy ── */
+    .copy-grid { display:flex; flex-direction:column; gap:10px; }
+    .copy-section { background:var(--surface); border-radius:var(--r); box-shadow:var(--shadow); overflow:hidden; }
+    .copy-sec-head { display:flex; align-items:center; gap:10px; padding:13px 18px; cursor:pointer; user-select:none; transition:background .1s; }
+    .copy-sec-head:hover { background:var(--surface2); }
+    .copy-sec-name { font-weight:700; flex:1; }
+    .copy-sec-count { font-size:13px; color:var(--text3); }
+    .copy-sec-arrow { font-size:12px; color:var(--text3); transition:transform .18s; }
+    .copy-section.closed .copy-sec-arrow { transform:rotate(-90deg); }
+    .copy-section.closed .copy-rows { display:none; }
+    .copy-rows { border-top:1px solid var(--border); }
+    .copy-row { display:grid; grid-template-columns:200px 1fr; gap:0; border-bottom:1px solid var(--border); }
+    .copy-row:last-child { border-bottom:none; }
+    .copy-row-key { padding:10px 18px; font-size:12px; color:var(--text3); background:var(--surface2); font-family:'IBM Plex Mono',monospace; display:flex; align-items:center; border-right:1px solid var(--border); }
+    .copy-row-val { padding:10px 18px; display:flex; align-items:center; }
+    .copy-row-val.is-empty { font-style:italic; color:#bbb; }
+    .copy-row-val.is-empty::before { content:'TBD'; }
+
     /* ── To Do ── */
     .todo-summary { display:flex; align-items:baseline; gap:10px; margin-bottom:20px; }
     .todo-total { font-size:20px; font-weight:700; }
@@ -287,6 +305,7 @@
     <button onclick="window.showTab('hq',this)">HQ Upgrades</button>
     <button onclick="window.showTab('synergies',this)">Synergies</button>
     <button onclick="window.showTab('formula',this)">Formula</button>
+    <button onclick="window.showTab('copy',this)">Copy</button>
     <button id="tab-btn-todo" onclick="window.showTab('todo',this)">To Do</button>
   </nav>
 
@@ -297,6 +316,7 @@
     <div id="tab-hq"           class="tab-section" hidden></div>
     <div id="tab-synergies"    class="tab-section" hidden></div>
     <div id="tab-formula"      class="tab-section" hidden></div>
+    <div id="tab-copy"         class="tab-section" hidden></div>
     <div id="tab-todo"         class="tab-section" hidden></div>
   </main>
 </div>
@@ -465,6 +485,7 @@ window.saveToFirebase = async function() {
     setSaveBtn('saved', '✓ Saved');
     dirty = false;
     document.getElementById('dirty-dot').classList.remove('show');
+    renderCopy();
     renderTodos();
     setTimeout(() => setSaveBtn('', 'Save to Firebase'), 2000);
   } catch(e) {
@@ -748,6 +769,118 @@ function renderFormula() {
   </div>`;
 }
 
+// ── Copy ──────────────────────────────────────────────────────────
+window.toggleCopySection = function(el) {
+  el.closest('.copy-section').classList.toggle('closed');
+};
+
+function renderCopy() {
+  // Build a flat list of { sectionId, sectionName, key, path, value } entries
+  const sections = [];
+
+  // ── Onboarding ──
+  sections.push({
+    id: 'onboarding', name: 'Onboarding', rows: [
+      { key: 'Intern flavour text', path: 'onboarding.internFlavorText', val: D.onboarding.internFlavorText },
+    ]
+  });
+
+  // ── Forks ──
+  sections.push({
+    id: 'forks', name: 'Forks', rows:
+      D.forks.map((f, fi) => ({ key: f.id, path: `forks.${fi}.label`, val: f.label }))
+  });
+
+  // ── Subsidiaries — names & tickers ──
+  sections.push({
+    id: 'sub-names', name: 'Subsidiary Names & Tickers', rows:
+      D.subsidiaries.flatMap((s, si) => [
+        { key: `${s.ticker} — name`,   path: `subsidiaries.${si}.name`,   val: s.name },
+        { key: `${s.ticker} — ticker`, path: `subsidiaries.${si}.ticker`, val: s.ticker },
+      ])
+  });
+
+  // ── Upgrade copy — one section per subsidiary ──
+  D.subsidiaries.forEach((s, si) => {
+    const rows = [];
+    s.tiers.forEach((t, ti) => {
+      t.slots.forEach((name, slotIdx) => {
+        rows.push({
+          key: `T${t.tier} · ${slotIdx + 1}`,
+          path: `subsidiaries.${si}.tiers.${ti}.slots.${slotIdx}`,
+          val: name,
+        });
+      });
+    });
+    sections.push({ id: `sub-${s.id}`, name: `${s.name} — Upgrades`, rows });
+  });
+
+  // ── Government Track ──
+  sections.push({
+    id: 'gov', name: 'Government Track', rows:
+      D.governmentTrack.categories.flatMap((cat, ci) =>
+        cat.upgrades.map((u, ui) => ({
+          key: `${cat.name} · ${ui + 1}`,
+          path: `governmentTrack.categories.${ci}.upgrades.${ui}.name`,
+          val: u.name,
+        }))
+      )
+  });
+
+  // ── HQ Upgrades ──
+  sections.push({
+    id: 'hq', name: 'HQ Upgrades', rows:
+      D.hqUpgrades.flatMap((u, ui) => [
+        { key: `${ui + 1} — name`,   path: `hqUpgrades.${ui}.name`,   val: u.name },
+        { key: `${ui + 1} — effect`, path: `hqUpgrades.${ui}.effect`, val: u.effect },
+      ])
+  });
+
+  // ── Synergies ──
+  sections.push({
+    id: 'synergies', name: 'Synergies', rows:
+      D.synergies.flatMap((s, si) => [
+        { key: `${s.id} — name`,        path: `synergies.${si}.name`,        val: s.name },
+        { key: `${s.id} — effect`,      path: `synergies.${si}.effect`,      val: s.effect },
+        { key: `${s.id} — flavour`,     path: `synergies.${si}.flavourText`, val: s.flavourText },
+      ])
+  });
+
+  const totalStrings = sections.reduce((a, s) => a + s.rows.length, 0);
+  const filledStrings = sections.reduce((a, s) => a + s.rows.filter(r => r.val && r.val.trim()).length, 0);
+
+  const sectionsHtml = sections.map(sec => {
+    const filled = sec.rows.filter(r => r.val && r.val.trim()).length;
+    const total  = sec.rows.length;
+
+    const rowsHtml = sec.rows.map(row => {
+      const isEmpty = !row.val || !String(row.val).trim();
+      return `<div class="copy-row">
+        <div class="copy-row-key">${esc(row.key)}</div>
+        <div class="copy-row-val ${isEmpty ? 'is-empty' : ''}">
+          ${isEmpty ? '' : ed(row.path, row.val, row.path.includes('flavourText') ? 'flavour-edit' : 'note-edit', 'Click to edit…', row.path.includes('flavourText'))}
+        </div>
+      </div>`;
+    }).join('');
+
+    // Default open if section has any empty rows
+    const hasEmpty = filled < total;
+    return `<div class="copy-section ${hasEmpty ? '' : 'closed'}">
+      <div class="copy-sec-head" onclick="window.toggleCopySection(this)">
+        <span class="copy-sec-name">${sec.name}</span>
+        <span class="copy-sec-count">${filled}/${total}</span>
+        <span class="copy-sec-arrow">▾</span>
+      </div>
+      <div class="copy-rows">${rowsHtml}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('tab-copy').innerHTML = `
+    <div class="sec-title">Copy</div>
+    <div class="sec-sub">All text strings in the game · ${filledStrings}/${totalStrings} filled · click any value to edit · save when done</div>
+    <div class="copy-grid">${sectionsHtml}</div>`;
+}
+
 // ── To Do ─────────────────────────────────────────────────────────
 window.navTo = function(tabId, elementId) {
   const btn = document.querySelector(`nav.tabs button[onclick*="'${tabId}'"]`);
@@ -977,6 +1110,7 @@ function renderAll() {
   renderHQ();
   renderSynergies();
   renderFormula();
+  renderCopy();
   renderTodos();
   document.getElementById('app').style.display = 'block';
 }
