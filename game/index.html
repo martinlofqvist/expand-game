@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EXPAND!</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ── Start Screen ─────────────────────────────────────────────── -->
+<div id="start-screen">
+  <div class="start-inner">
+    <h1 class="start-logo">EXPAND!</h1>
+    <p class="start-tagline">A corporate expansion idle game</p>
+    <button class="start-btn" onclick="window.startGame()">START GAME</button>
+    <p class="start-note" id="start-resume" hidden>Session in progress — resume where you left off</p>
+  </div>
+</div>
+
+<!-- ── Main Game ─────────────────────────────────────────────────── -->
+<div id="game" hidden>
+
+  <!-- Sticky top bar: money + click -->
+  <div id="top-bar">
+    <div id="money-display">$0</div>
+    <div class="top-bar-right">
+      <div id="income-display">$0/sec</div>
+      <div id="revenue-display">$0 total</div>
+      <button id="click-btn" onclick="window.handleClick()">CLICK</button>
+      <div class="speed-controls">
+        <span class="speed-label">DEV</span>
+        <button class="speed-btn active" onclick="window.setGameSpeed(1)"   id="spd-1"  >1×</button>
+        <button class="speed-btn"        onclick="window.setGameSpeed(10)"  id="spd-10" >10×</button>
+        <button class="speed-btn"        onclick="window.setGameSpeed(100)" id="spd-100">100×</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Intern bar (hidden until 5 clicks) -->
+  <div id="intern-bar" hidden>
+    <span id="intern-label">Interns: <strong id="intern-count">0</strong></span>
+    <span id="intern-income"></span>
+    <button id="hire-btn" onclick="window.handleHireIntern()">
+      Hire Intern — $<span id="intern-cost-display">5</span>
+    </button>
+    <span id="intern-flavor" hidden></span>
+  </div>
+
+  <!-- Fork choice (appears when threshold hit, before subsidiary unlocks) -->
+  <div id="fork-zone" hidden></div>
+
+  <!-- Subsidiary tabs -->
+  <div id="sub-zone" hidden>
+    <div id="sub-tabs"></div>
+    <div id="sub-content"></div>
+  </div>
+
+  <!-- Government Track (visible after first gov upgrade is affordable) -->
+  <div id="gov-zone" hidden>
+    <div class="zone-header">Government Track</div>
+    <div id="gov-content"></div>
+  </div>
+
+  <!-- HQ Upgrades (visible after first HQ threshold reached) -->
+  <div id="hq-zone" hidden>
+    <div class="zone-header">HQ Upgrades</div>
+    <div id="hq-content"></div>
+  </div>
+
+</div>
+
+<!-- ── Animation Overlay ─────────────────────────────────────────── -->
+<!--
+  Unified animation system for: subsidiary unlock, upgrade purchase, gov track, fork.
+  Same HTML component for all — only content changes.
+  TODO: replace .anim-media-slot with <img> or <video> once assets exist.
+-->
+<div id="anim-overlay" class="anim-overlay" hidden onclick="window.dismissAnim()">
+  <div class="anim-card" onclick="event.stopPropagation()">
+    <div class="anim-media-slot" id="anim-media">
+      <!-- Future: <img src="…"> or <video src="…"> goes here -->
+      <div class="anim-media-placeholder" id="anim-media-placeholder"></div>
+    </div>
+    <div class="anim-type"     id="anim-type"></div>
+    <div class="anim-title"    id="anim-title"></div>
+    <div class="anim-subtitle" id="anim-subtitle"></div>
+    <div class="anim-detail"   id="anim-detail"></div>
+    <button class="anim-continue" onclick="window.dismissAnim()">CONTINUE</button>
+  </div>
+</div>
+
+<!-- ── Toast (quick upgrade feedback) ───────────────────────────── -->
+<div id="toast" hidden></div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
