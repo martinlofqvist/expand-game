@@ -65,7 +65,6 @@ window.startGame = function() {
       requestAnimationFrame(() => {
         events.forEach(ev => {
           if (ev.type === 'subsidiary') {
-            const { fmtMoney } = window.__expand_fmtMoney ?? {};
             showAnim({
               type:     'subsidiary',
               title:    ev.data.name,
