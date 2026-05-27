@@ -56,7 +56,8 @@ function deriveValues(raw) {
 
   // ── Gov track costs ────────────────────────────────────────────
   // Scale by category tier. Each category is roughly 10× more expensive.
-  const govCategoryBase = [500_000, 5_000_000, 50_000_000, 500_000_000];
+  // Base costs come from game-data.json so they're editable in the CMS.
+  const govCategoryBase = d.governmentTrack.categoryBaseCosts ?? [500_000, 5_000_000, 50_000_000, 500_000_000];
   d.governmentTrack.categories.forEach((cat, ci) => {
     cat.upgrades.forEach((u, ui) => {
       u.cost = govCategoryBase[ci] * (ui + 1);

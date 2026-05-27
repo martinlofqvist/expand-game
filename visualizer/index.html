@@ -168,6 +168,13 @@
 
     /* ── Gov Track ── */
     .gov-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px,1fr)); gap:16px; }
+    .cms-panel { background:var(--surface); border-radius:var(--r); box-shadow:var(--shadow); padding:16px 18px; }
+    .cms-panel-title { font-weight:700; font-size:15px; margin-bottom:6px; }
+    .gov-cost-grid { display:flex; flex-direction:column; gap:8px; }
+    .gov-cost-row { display:grid; grid-template-columns:180px 1fr auto; align-items:center; gap:12px; padding:8px 10px; background:var(--surface2); border-radius:7px; }
+    .gov-cost-label { font-weight:600; font-size:14px; }
+    .gov-cost-note { font-size:12px; color:var(--text3); }
+    .gov-cost-field { display:flex; justify-content:flex-end; }
     .gov-card { background:var(--surface); border-radius:var(--r); box-shadow:var(--shadow); overflow:hidden; }
     .gov-card-head { padding:14px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
     .gov-card-title { font-weight:700; }
@@ -227,8 +234,6 @@
     .copy-row:last-child { border-bottom:none; }
     .copy-row-key { padding:10px 18px; font-size:12px; color:var(--text3); background:var(--surface2); font-family:'IBM Plex Mono',monospace; display:flex; align-items:center; border-right:1px solid var(--border); }
     .copy-row-val { padding:10px 18px; display:flex; align-items:center; }
-    .copy-row-val.is-empty { font-style:italic; color:#bbb; }
-    .copy-row-val.is-empty::before { content:'TBD'; }
 
     /* ── To Do ── */
     .todo-summary { display:flex; align-items:baseline; gap:10px; margin-bottom:20px; }
@@ -735,12 +740,31 @@ window.toggleCard = function(id){ document.getElementById('card-'+id).classList.
 // ── Gov Track ─────────────────────────────────────────────────────
 function renderGovTrack() {
   const nums=['①','②','③','④'];
+
+  // ── Category base costs ──────────────────────────────────────────
+  const baseCosts = D.governmentTrack.categoryBaseCosts ?? [500000,5000000,50000000,500000000];
+  const costRows = baseCosts.map((cost, ci) => `
+    <div class="gov-cost-row">
+      <div class="gov-cost-label">${nums[ci]} ${D.governmentTrack.categories[ci]?.name ?? `Category ${ci+1}`}</div>
+      <div class="gov-cost-note">base cost per upgrade · each subsequent upgrade in the category costs ×2, ×3, ×4…</div>
+      <div class="gov-cost-field">${numEd(`governmentTrack.categoryBaseCosts.${ci}`, cost)}</div>
+    </div>`).join('');
+
   const cards=D.governmentTrack.categories.map((cat,ci)=>`
     <div class="gov-card">
       <div class="gov-card-head"><div class="gov-card-title">${nums[ci]} ${ed(`governmentTrack.categories.${ci}.name`,cat.name,'name-edit')}</div><span class="badge b-green">${cat.upgrades.length}/5</span></div>
       <div class="gov-body">${cat.upgrades.map((u,ui)=>`<div class="gov-item"><div>${ed(`governmentTrack.categories.${ci}.upgrades.${ui}.name`,u.name,'note-edit','Upgrade name…')}</div><div class="gov-item-gate"><span class="gate-label">Gates:</span>${ed(`governmentTrack.categories.${ci}.upgrades.${ui}.gates`,u.gates,'note-edit','subsidiary_tier or blank')}</div></div>`).join('')}</div>
     </div>`).join('');
-  document.getElementById('tab-govtrack').innerHTML=`<div class="sec-title">Government Track</div><div class="sec-sub">20 upgrades · all names and gate targets editable · "Gates" = which subsidiary tier this unlock requires (e.g. publishing_tier2)</div><div class="gov-grid">${cards}</div>`;
+
+  document.getElementById('tab-govtrack').innerHTML=`
+    <div class="sec-title">Government Track</div>
+    <div class="sec-sub">20 upgrades · all names and gate targets editable · "Gates" = which subsidiary tier this unlock requires (e.g. publishing_tier2)</div>
+    <div class="cms-panel" style="margin-bottom:24px">
+      <div class="cms-panel-title">Category Base Costs</div>
+      <div class="sec-sub" style="margin-bottom:12px">Each category's first upgrade costs this amount. Subsequent upgrades in the same category cost ×2, ×3, ×4…</div>
+      <div class="gov-cost-grid">${costRows}</div>
+    </div>
+    <div class="gov-grid">${cards}</div>`;
 }
 
 // ── HQ ────────────────────────────────────────────────────────────
@@ -877,10 +901,12 @@ function renderCopy() {
 
     const rowsHtml = sec.rows.map(row => {
       const isEmpty = !row.val || !String(row.val).trim();
+      const cls = row.path.includes('flavourText') ? 'flavour-edit' : 'note-edit';
+      const multi = row.path.includes('flavourText');
       return `<div class="copy-row">
         <div class="copy-row-key">${esc(row.key)}</div>
-        <div class="copy-row-val ${isEmpty ? 'is-empty' : ''}">
-          ${isEmpty ? '' : ed(row.path, row.val, row.path.includes('flavourText') ? 'flavour-edit' : 'note-edit', 'Click to edit…', row.path.includes('flavourText'))}
+        <div class="copy-row-val">
+          ${ed(row.path, row.val ?? '', cls, 'Click to edit…', multi)}
         </div>
       </div>`;
     }).join('');

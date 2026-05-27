@@ -512,6 +512,7 @@
   ],
 
   "governmentTrack": {
+    "categoryBaseCosts": [500000, 5000000, 50000000, 500000000],
     "categories": [
       {
         "id": "data_deals",
