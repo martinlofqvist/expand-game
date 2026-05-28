@@ -21,12 +21,12 @@
 <!-- ── Main Game ─────────────────────────────────────────────────── -->
 <div id="game" hidden>
 
-  <!-- Sticky top bar: money + click -->
+  <!-- Top: money pill + stat pills -->
   <div id="top-bar">
     <div id="money-display">$0</div>
     <div class="top-bar-right">
-      <div id="income-display">$0/sec</div>
-      <div id="revenue-display">$0 total</div>
+      <div id="income-display">$0/SEC</div>
+      <div id="revenue-display">$0 TOTAL</div>
       <button id="click-btn" onclick="window.handleClick()">CLICK</button>
       <div class="speed-controls">
         <span class="speed-label">DEV</span>
@@ -39,12 +39,18 @@
 
   <!-- Intern bar (hidden until 5 clicks) -->
   <div id="intern-bar" hidden>
-    <span id="intern-label">Interns: <strong id="intern-count">0</strong></span>
+    <span id="intern-label">INTERNS: <strong id="intern-count">0</strong></span>
     <span id="intern-income"></span>
     <button id="hire-btn" onclick="window.handleHireIntern()">
-      Hire Intern — $<span id="intern-cost-display">5</span>
+      HIRE INTERN — $<span id="intern-cost-display">5</span>
     </button>
     <span id="intern-flavor" hidden></span>
+  </div>
+
+  <!-- Click zone: big emoji + income rate -->
+  <div class="click-zone">
+    <span class="click-emoji" onclick="window.handleClick()">💵</span>
+    <div class="click-income" id="click-income-display">$0 / SECOND</div>
   </div>
 
   <!-- Fork choice (appears when threshold hit, before subsidiary unlocks) -->

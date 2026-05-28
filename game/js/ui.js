@@ -22,7 +22,6 @@ export function renderAll() {
 }
 
 // ── Lightweight tick update (called 10×/sec) ──────────────────────
-// Only updates numbers — avoids full DOM rebuild on every tick.
 export function tickUpdate() {
   const data  = getData();
   const state = getState();
@@ -33,9 +32,15 @@ export function tickUpdate() {
 // ── Money bar ─────────────────────────────────────────────────────
 function _updateMoneyBar(data, state) {
   const income = calcIncome();
-  document.getElementById('money-display').textContent  = fmtMoney(state.money);
-  document.getElementById('income-display').textContent = fmtMoney(income / getSpeed()) + '/sec';
-  document.getElementById('revenue-display').textContent = fmtMoney(state.totalRevenue) + ' total';
+  const incomePerSec = income / getSpeed();
+  document.getElementById('money-display').textContent        = fmtMoney(state.money);
+  document.getElementById('income-display').textContent       = fmtMoney(incomePerSec) + '/SEC';
+  document.getElementById('revenue-display').textContent      = fmtMoney(state.totalRevenue) + ' TOTAL';
+
+  const clickIncome = document.getElementById('click-income-display');
+  if (clickIncome) {
+    clickIncome.textContent = fmtMoney(incomePerSec) + ' / SECOND';
+  }
 }
 
 // ── Intern bar ────────────────────────────────────────────────────
@@ -62,12 +67,10 @@ function _renderInterns(data, state) {
 
 // ── Fork zone ─────────────────────────────────────────────────────
 function _renderForks(data, state) {
-  const zone    = document.getElementById('fork-zone');
-  const content = document.getElementById('fork-zone');
+  const zone = document.getElementById('fork-zone');
 
-  // Find forks whose threshold has been crossed but not yet decided
   const pending = data.forks.filter(f => {
-    if (getForkChoice(f.id)) return false;            // already chosen
+    if (getForkChoice(f.id)) return false;
     return state.totalRevenue >= f.threshold;
   });
 
@@ -100,7 +103,6 @@ function _renderForks(data, state) {
 function _renderSubZone(data, state) {
   const zone = document.getElementById('sub-zone');
 
-  // Collect visible subsidiaries (unlocked + not the unchosen fork side)
   const visible = data.subsidiaries.filter(sub => {
     if (!isUnlocked(sub.id)) return false;
     if (sub.forkId) {
@@ -113,12 +115,10 @@ function _renderSubZone(data, state) {
   if (visible.length === 0) { zone.hidden = true; return; }
   zone.hidden = false;
 
-  // Default active tab
   if (!_activeSubId || !visible.find(s => s.id === _activeSubId)) {
     _activeSubId = visible[0].id;
   }
 
-  // Tab bar
   document.getElementById('sub-tabs').innerHTML = visible.map(sub => `
     <button class="sub-tab ${sub.id === _activeSubId ? 'active' : ''}"
             onclick="window.switchSubTab('${sub.id}')">
@@ -126,7 +126,6 @@ function _renderSubZone(data, state) {
     </button>
   `).join('');
 
-  // Tab content
   const active = visible.find(s => s.id === _activeSubId);
   if (active) _renderSubContent(active, state);
 }
@@ -139,31 +138,36 @@ function _renderSubContent(sub, state) {
     const lockedTag = !prereqMet
       ? `<span class="tier-locked-tag">Requires gov: ${tier.govPrereq}</span>` : '';
 
-    const slotsHtml = tier.slots.map((slot, si) => {
-      const bought = isUpgradeBought(sub.id, ti, si);
-      const canAfford = state.money >= tier.cost;
+    const cardsHtml = tier.slots.map((slot, si) => {
+      const bought     = isUpgradeBought(sub.id, ti, si);
+      const canAfford  = state.money >= tier.cost;
+      const affordable = canAfford && !bought && prereqMet;
 
       const nameHtml = slot.isPlaceholder
-        ? `<span class="upgrade-name is-path">${slot.dataPath}</span>`
-        : `<span class="upgrade-name">${slot.name}</span>`;
+        ? `<span class="upgrade-card-name is-path">${slot.dataPath}</span>`
+        : `<span class="upgrade-card-name">${slot.name}</span>`;
 
-      const actionHtml = bought
-        ? `<span class="purchased-mark">✓</span>`
-        : !prereqMet ? ''
-        : `<button class="buy-btn ${canAfford ? '' : 'unaffordable'}"
-                   data-cost="${tier.cost}"
-                   onclick="window.handleBuyUpgrade('${sub.id}', ${ti}, ${si})">
-             ${fmtMoney(tier.cost)}
-           </button>`;
+      const priceHtml = bought
+        ? `<span class="upgrade-card-price">✓</span>`
+        : `<span class="upgrade-card-price">${fmtMoney(tier.cost)}</span>`;
 
-      const cls = bought ? 'is-purchased' : !prereqMet ? 'is-locked' : '';
-      return `<div class="upgrade-row ${cls}">${nameHtml}${actionHtml}</div>`;
+      const cls = [
+        'upgrade-card',
+        bought      ? 'is-purchased'  : '',
+        !prereqMet  ? 'is-locked'     : '',
+        (!bought && !canAfford && prereqMet) ? 'unaffordable' : '',
+      ].filter(Boolean).join(' ');
+
+      const onclick = (!bought && prereqMet)
+        ? `onclick="window.handleBuyUpgrade('${sub.id}', ${ti}, ${si})"` : '';
+
+      return `<div class="${cls}" data-cost="${tier.cost}" ${onclick}>${nameHtml}${priceHtml}</div>`;
     }).join('');
 
     return `
       <div class="tier-block">
-        <div class="tier-label">Tier ${tier.tier} ${lockedTag}</div>
-        <div>${slotsHtml}</div>
+        <div class="tier-label">TIER ${tier.tier} ${lockedTag}</div>
+        <div class="upgrade-grid">${cardsHtml}</div>
       </div>`;
   }).join('');
 
@@ -171,8 +175,8 @@ function _renderSubContent(sub, state) {
     <div class="sub-header">
       <span class="sub-name-big">${sub.name}</span>
       <span class="sub-ticker-tag">${sub.ticker}</span>
-      <span class="sub-rate-tag">base ${fmtMoney(sub.baseRate)}/sec</span>
-      <span class="sub-rate-current">→ ${fmtMoney(income / getSpeed())}/sec now</span>
+      <span class="sub-rate-tag">BASE ${fmtMoney(sub.baseRate)}/SEC</span>
+      <span class="sub-rate-current">→ ${fmtMoney(income / getSpeed())}/SEC NOW</span>
     </div>
     ${tiersHtml}`;
 }
@@ -191,7 +195,6 @@ function _subIncome(sub, state) {
 function _renderGovZone(data, state) {
   const zone = document.getElementById('gov-zone');
 
-  // Show gov zone once the player has at least one subsidiary T1 upgrade
   const hasUpgrade = Object.values(state.upgrades).some(sub =>
     Object.values(sub).flat().some(Boolean)
   );
@@ -200,9 +203,9 @@ function _renderGovZone(data, state) {
 
   const catsHtml = data.governmentTrack.categories.map(cat => {
     const rowsHtml = cat.upgrades.map(u => {
-      const bought     = isGovBought(u.id);
-      const canAfford  = state.money >= u.cost;
-      const nameHtml   = u.dataPath
+      const bought    = isGovBought(u.id);
+      const canAfford = state.money >= u.cost;
+      const nameHtml  = u.dataPath
         ? `<span class="gov-row-name is-path">${u.dataPath}</span>`
         : `<span class="gov-row-name">${u.name}</span>`;
 
@@ -227,7 +230,6 @@ function _renderGovZone(data, state) {
 function _renderHQZone(data, state) {
   const zone = document.getElementById('hq-zone');
 
-  // Show once first HQ milestone has been hit
   const anyActive = data.hqUpgrades.some(u => isHQActive(u.id));
   if (!anyActive) { zone.hidden = true; return; }
   zone.hidden = false;
@@ -251,12 +253,20 @@ function _renderHQZone(data, state) {
   document.getElementById('hq-content').innerHTML = rowsHtml;
 }
 
-// ── Buy button affordability (lightweight tick update) ────────────
+// ── Buy button / card affordability (lightweight tick update) ─────
 function _updateBuyButtonStates(state) {
+  // Upgrade cards
+  document.querySelectorAll('.upgrade-card[data-cost]').forEach(card => {
+    const cost = parseFloat(card.dataset.cost);
+    if (!card.classList.contains('is-purchased') && !card.classList.contains('is-locked')) {
+      card.classList.toggle('unaffordable', state.money < cost);
+    }
+  });
+
+  // Gov/HQ buy buttons
   document.querySelectorAll('.buy-btn[data-cost]').forEach(btn => {
     const cost = parseFloat(btn.dataset.cost);
-    const affordable = state.money >= cost;
-    btn.classList.toggle('unaffordable', !affordable);
+    btn.classList.toggle('unaffordable', state.money < cost);
   });
 
   const hireBtn = document.getElementById('hire-btn');
