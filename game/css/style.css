@@ -26,53 +26,95 @@ body {
 /* ── Start Screen ───────────────────────────────────────────────── */
 #start-screen {
   position: fixed; inset: 0;
-  background: var(--black);
   display: flex; align-items: center; justify-content: center;
   z-index: 100;
+  overflow: hidden;
+  /* Sunburst: thin blue lines radiating from near-center */
+  background-color: #eef3ff;
+  background-image:
+    radial-gradient(ellipse 40% 30% at 50% 44%, rgba(140,175,255,0.45) 0%, transparent 100%),
+    repeating-conic-gradient(
+      from 0deg at 50% 44%,
+      rgba(70,110,255,0.18) 0deg 1.2deg,
+      transparent 1.2deg 5deg
+    );
 }
 #start-screen.hidden { display: none; }
 
-.start-inner { text-align: center; padding: 40px; }
+/* SVG stock charts — full-bleed, pointer-events off */
+.start-chart {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+}
+
+.start-inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  text-align: center;
+  padding: 40px;
+}
+
+/* Title box */
+.start-title-box {
+  background: var(--white);
+  border: 4px solid var(--black);
+  padding: 20px 64px 16px;
+}
 
 .start-logo {
-  font-size: 80px;
-  font-weight: bold;
-  color: var(--white);
-  letter-spacing: 0.06em;
-  margin-bottom: 16px;
+  font-size: clamp(64px, 10vw, 120px);
+  font-weight: 900;
+  font-style: italic;
+  color: var(--black);
+  letter-spacing: 0.02em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+/* Tagline box */
+.start-tagline-box {
+  background: var(--white);
+  border: 4px solid var(--black);
+  padding: 14px 32px;
 }
 
 .start-tagline {
-  font-size: 14px;
-  color: #666;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  margin-bottom: 56px;
-  max-width: 440px;
-  line-height: 1.6;
+  font-size: clamp(14px, 1.6vw, 20px);
+  font-weight: 700;
+  color: var(--black);
+  text-transform: none;
+  letter-spacing: 0;
+  line-height: 1.4;
 }
 
+/* Arrow/chevron button */
 .start-btn {
   font-family: inherit;
-  font-size: 18px;
-  font-weight: bold;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  padding: 18px 64px;
-  background: var(--white);
-  color: var(--black);
+  font-size: clamp(16px, 1.8vw, 22px);
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--white);
+  background: #22c55e;
   border: none;
-  border-radius: 100px;
+  padding: 16px 56px 16px 36px;
   cursor: pointer;
-  display: inline-block;
-  margin-bottom: 20px;
+  clip-path: polygon(0 0, calc(100% - 26px) 0, 100% 50%, calc(100% - 26px) 100%, 0 100%);
+  margin-top: 4px;
 }
-.start-btn:hover { background: #e0e0e0; }
+.start-btn:hover { background: #16a34a; }
 
 .start-note {
   font-size: 11px;
-  color: #555;
-  letter-spacing: 0.08em;
+  color: #666;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 /* ── Main game wrapper ──────────────────────────────────────────── */

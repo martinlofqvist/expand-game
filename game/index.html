@@ -10,11 +10,26 @@
 
 <!-- ── Start Screen ─────────────────────────────────────────────── -->
 <div id="start-screen">
+
+  <!-- Stock chart lines (SVG, behind content) -->
+  <svg class="start-chart" viewBox="0 0 1456 816" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <!-- Left chart: white outline then black line -->
+    <path d="M -30,800 L 160,490 L 340,610 L 580,360 L 680,420" stroke="white" stroke-width="20" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M -30,800 L 160,490 L 340,610 L 580,360 L 680,420" stroke="black" stroke-width="8"  fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Right chart -->
+    <path d="M 1080,790 L 1200,340 L 1500,60" stroke="white" stroke-width="20" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 1080,790 L 1200,340 L 1500,60" stroke="black" stroke-width="8"  fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+
   <div class="start-inner">
-    <h1 class="start-logo"  id="start-headline">EXPAND!</h1>
-    <p class="start-tagline" id="start-tagline">You started with a book. Now you own everything. Shareholders are pleased.</p>
-    <button class="start-btn" id="start-cta" onclick="window.startGame()">START GAME</button>
-    <p class="start-note"    id="start-resume" hidden>Session in progress — resume where you left off</p>
+    <div class="start-title-box">
+      <h1 class="start-logo" id="start-headline">EXPAND!</h1>
+    </div>
+    <div class="start-tagline-box">
+      <p class="start-tagline" id="start-tagline">You started with a book. Now you own everything. Shareholders are pleased.</p>
+    </div>
+    <button class="start-btn" id="start-cta" onclick="window.startGame()">Start game</button>
+    <p class="start-note" id="start-resume" hidden>Session in progress — resume where you left off</p>
   </div>
 </div>
 
